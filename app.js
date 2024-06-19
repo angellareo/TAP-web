@@ -1,4 +1,4 @@
-document.getElementById('csvFileInput').addEventListener('change', handleFileSelect, false);
+document.getElementById('dataFileInput').addEventListener('change', handleFileSelect, false);
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -6,7 +6,7 @@ function handleFileSelect(event) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const contents = e.target.result;
-            processCSV(contents);
+            processData(contents);
         };
         reader.readAsText(file);
     } else {
@@ -14,7 +14,7 @@ function handleFileSelect(event) {
     }
 }
 
-function processCSV(csv) {
+function processData(data) {
     const title = document.getElementById('title').value;
     const comments = document.getElementById('comments').value;
     const numberOfStudents = parseInt(document.getElementById('students').value);
@@ -30,7 +30,7 @@ function processCSV(csv) {
         return;
     }
 
-    const lines = csv.split('\n').slice(0, numberOfStudents);
+    const lines = data.split('\n').slice(0, numberOfStudents);
     const scores = lines.map(line => calculateScore(line, key, include, offset));
 
     const result = calculateMetrics(scores);
