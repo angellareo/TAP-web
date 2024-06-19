@@ -57,6 +57,20 @@ function calculateScore(line, key, include, offset) {
     return score;
 }
 
+function skewness(scores) {
+    const n = scores.length;
+    const mean = math.mean(scores);
+    const stdDev = math.std(scores);
+    return scores.reduce((acc, score) => acc + Math.pow(score - mean, 3), 0) / (n * Math.pow(stdDev, 3));
+}
+
+function kurtosis(scores) {
+    const n = scores.length;
+    const mean = math.mean(scores);
+    const stdDev = math.std(scores);
+    return scores.reduce((acc, score) => acc + Math.pow(score - mean, 4), 0) / (n * Math.pow(stdDev, 4);
+}
+
 function calculateMetrics(scores) {
     const numExaminees = scores.length;
     const totalPossibleScore = scores.length > 0 ? scores[0].length : 0;
@@ -65,9 +79,9 @@ function calculateMetrics(scores) {
     const meanScore = math.mean(scores);
     const medianScore = math.median(scores);
     const stdDev = math.std(scores);
-    const variance = math.var(scores);
-    const skewness = math.skewness(scores);
-    const kurtosis = math.kurtosis(scores);
+    const variance = math.variance(scores);
+    const skewness = skewness(scores);
+    const kurtosis = kurtosis(scores);
 
     return {
         numExaminees,
