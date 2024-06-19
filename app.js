@@ -1,4 +1,4 @@
-document.getElementById('csvFileInput').addEventListener('change', handleFileSelect, false);
+document.getElementById('dataFileInput').addEventListener('change', handleFileSelect, false);
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -6,7 +6,7 @@ function handleFileSelect(event) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const contents = e.target.result;
-            processCSV(contents);
+            processData(contents);
         };
         reader.readAsText(file);
     } else {
@@ -14,8 +14,8 @@ function handleFileSelect(event) {
     }
 }
 
-function processCSV(csv) {
-    const lines = csv.split('\n');
+function processData(data) {
+    const lines = data.split('\n');
     const result = calculateMetrics(lines);
 
     document.getElementById('result').innerText = result;

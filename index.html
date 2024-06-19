@@ -3,14 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV Processor</title>
+    <title>TAP: Test Analysis Program</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
 </head>
 <body>
-    <h1>CSV Processor</h1>
-    <input type="file" id="csvFileInput" accept=".csv">
-    <button onclick="processCSV()">Process CSV</button>
-    <p id="result"></p>
-    <a id="downloadLink" style="display: none;">Download Result</a>
+    <div class="container">
+        <div class="form-container">
+            <h1 class="text-center">TAP: Test Analysis Program</h1>
+            <form>
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" class="form-control" id="title" placeholder="Enter title">
+                </div>
+                <div class="form-group">
+                    <label for="comments">Comments</label>
+                    <input type="text" class="form-control" id="comments" placeholder="Enter comments">
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="students"># Students</label>
+                        <input type="number" class="form-control" id="students" placeholder="Enter number">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="items"># Test Items</label>
+                        <input type="number" class="form-control" id="items" placeholder="Enter number">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="offset"># Offset</label>
+                        <input type="number" class="form-control" id="offset" placeholder="Enter number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="key">Key</label>
+                    <input type="text" class="form-control" id="key" placeholder="Enter key">
+                </div>
+                <div class="form-group">
+                    <label for="options">Options</label>
+                    <input type="text" class="form-control" id="options" placeholder="Enter options">
+                </div>
+                <div class="form-group">
+                    <label for="include">Include</label>
+                    <input type="text" class="form-control" id="include" placeholder="Enter include criteria">
+                </div>
+                <div class="form-group text-center">
+                    <input type="file" id="dataFileInput" class="form-control-file" accept=".dat">
+                    <button type="button" class="btn btn-primary btn-lg mt-3" onclick="handleFileSelect()">Load Data</button>
+                </div>
+            </form>
+            <p id="result"></p>
+            <a id="downloadLink" style="display: none;" class="btn btn-success btn-lg mt-3">Download Result</a>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
