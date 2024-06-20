@@ -75,17 +75,11 @@ function calculateScore(line, key, include, offset) {
     return score;
 }
 
-function calculateSkewness(scores) {
-    const n = scores.length;
-    const mean = math.mean(scores);
-    const stdDev = math.std(scores);
+function calculateSkewness(scores, n, mean, stdDev) {
     return scores.reduce((acc, score) => acc + Math.pow(score - mean, 3), 0) / (n * Math.pow(stdDev, 3));
 }
 
-function calculateKurtosis(scores) {
-    const n = scores.length;
-    const mean = math.mean(scores);
-    const stdDev = math.std(scores);
+function calculateKurtosis(scores, n, mean, stdDev) {
     return scores.reduce((acc, score) => acc + Math.pow(score - mean, 4), 0) / (n * Math.pow(stdDev, 4));
 }
 
@@ -93,21 +87,25 @@ function calculateMetrics(scores) {
     const numExaminees = scores.length;
     const minScore = Math.min(...scores);
     const maxScore = Math.max(...scores);
-    const meanScore = math.mean(scores);
-    const medianScore = math.median(scores);
-    const stdDev = math.std(scores);
-    const variance = math.variance(scores);
-    const skewness = calculateSkewness(scores);
-    const kurtosis = calculateKurtosis(scores);
+    const mean = math.mean(scores);
+    const median = math.median(scores);
+    const stdDevSamp = math.std(scores);
+    const stdDevPop = math.std(scores, 'uncorrected');
+    const varSamp = math.variance(scores);
+    const varPop = math.variance(scores, 'uncorrected');
+    const skewness = calculateSkewness(scores, numExaminees, mean, stdDevPop);
+    const kurtosis = calculateKurtosis(scores, numExaminees, mean, stdDevPop)-3; // The -3 is to compare kurtosis with normal distribution;
 
     return {
         numExaminees,
         minScore,
         maxScore,
-        meanScore,
-        medianScore,
-        stdDev,
-        variance,
+        mean,
+        median,
+        stdDevSamp,
+        stdDevPop,
+        varSamp,
+        varPop,
         skewness,
         kurtosis
     };
@@ -119,10 +117,10 @@ function formatResult(title, comments, metrics, totalPossibleScore) {
            `Total Possible Score: ${totalPossibleScore}\n` +
            `Minimum Score: ${metrics.minScore.toFixed(3)} = ${(metrics.minScore / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
            `Maximum Score: ${metrics.maxScore.toFixed(3)} = ${(metrics.maxScore / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
-           `Median Score: ${metrics.medianScore.toFixed(3)} = ${(metrics.medianScore / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
-           `Mean Score: ${metrics.meanScore.toFixed(3)} = ${(metrics.meanScore / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
-           `Standard Deviation: ${metrics.stdDev.toFixed(3)}\n` +
-           `Variance: ${metrics.variance.toFixed(3)}\n` +
+           `Median Score: ${metrics.median.toFixed(3)} = ${(metrics.median / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
+           `Mean Score: ${metrics.mean.toFixed(3)} = ${(metrics.mean / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
+           `Standard Deviation: ${metrics.stdDevPop.toFixed(3)}\n` +
+           `Variance: ${metrics.varPop.toFixed(3)}\n` +
            `Skewness: ${metrics.skewness.toFixed(3)}\n` +
            `Kurtosis: ${metrics.kurtosis.toFixed(3)}`;
 }
