@@ -1,4 +1,4 @@
-const { getScores, calculateScore, calculateMetrics, calculateSkewness, calculateKurtosis, calculateTotalPossibleScore } = require('../app');
+const { getScores, calculateScore, calculateMetrics, calculateSkewness, calculateKurtosis, calculateTotalPossibleScore } = require('../src/app.js');
 
 test('calculateScore should calculate the correct score', () => {
   const line = ' AABBCCABCC';
