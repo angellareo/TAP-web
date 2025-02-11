@@ -19,7 +19,7 @@ build: clean
 	npm run build
 
 run: build
-	cd dist && python -m http.server
+	npm start
 
 publish: build
 	gh-pages -d dist

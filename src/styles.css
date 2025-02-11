@@ -1,0 +1,95 @@
+/* Make sure the entire viewport is used */
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* No scroll */
+}
+
+/* Main container that takes up available space */
+.container {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 20px; /* Add separation between columns */
+    flex-wrap: wrap; /* Allow wrapping for responsive design */
+}
+
+/* Two-column layout */
+.content {
+    display: flex;
+    width: 80%;
+    max-width: 1200px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Left: Form */
+.form-container {
+    width: 65%;
+    max-width: 800px;
+    padding: 20px;
+    border: 3px solid #007bff; /* Blue border */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.2); /* Optional: Add shadow for better visibility */
+
+}
+
+.tutorial-container {
+    width: 35%;
+    max-width: 300px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .form-container, .tutorial-container {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+/* Input field wrapper */
+.input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.char-counter {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: gray;
+    pointer-events: none;
+}
+
+.form-counter {
+    padding-right: 40px; /* Space for counter */
+}
+
+/* Footer fixed at bottom */
+footer {
+    flex-shrink: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+}
+
+.result-animation {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.result-animation.show {
+    opacity: 1;
+}

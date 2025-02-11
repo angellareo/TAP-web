@@ -1,15 +1,41 @@
 const math = require('mathjs');
 
-function updateCounter() {
-    //let input = document.getElementById("key");
-    let counter = document.getElementById("charCounter");
-    counter.textContent = "a" //input.value.length;
+function updateCounter(inputId, counterId) {
+    let input = document.getElementById(inputId);
+    let counter = document.getElementById(counterId);
+    counter.textContent = input.value.length;
 }
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    // Ensure the counters are updated on page load
+    const keyInput = document.getElementById('key');
+    if (keyInput) {
+        keyInput.addEventListener('input', () => updateCounter('key', 'charCounterKey'));
+    }
+
+    const optionsInput = document.getElementById('options');
+    if (optionsInput) {
+        optionsInput.addEventListener('input', () => updateCounter('options', 'charCounterOptions'));
+    }
+
+    const includeInput = document.getElementById('include');
+    if (includeInput) {
+        includeInput.addEventListener('input', () => updateCounter('include', 'charCounterInclude'));
+    }
+});
 
 document.addEventListener('DOMContentLoaded', (event) => {
     const dataFileInput = document.getElementById('dataFileInput');
     if (dataFileInput) {
-        dataFileInput.addEventListener('change', handleFileSelect, false);
+        // Remove this event listener
+        // dataFileInput.addEventListener('change', handleFileSelect, false);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    const loadDataButton = document.getElementById('loadDataButton');
+    if (loadDataButton) {
+        loadDataButton.addEventListener('click', handleFileSelect);
     }
 });
 
@@ -53,15 +79,32 @@ function processData(data) {
     const scores = getScores(data, numberOfStudents, key, include, offset);
     const result = calculateMetrics(scores, numberOfItems);
 
-    document.getElementById('result').innerText = formatResult(title, comments, result, totalPossibleScore);
+    const tutorialContainer = document.querySelector('.tutorial-container');
+    tutorialContainer.innerHTML = ''; // Clear previous contents
+
+    const resultElement = document.createElement('p');
+    resultElement.id = 'result';
+    resultElement.className = 'result-animation';
+    resultElement.innerText = formatResult(title, comments, result, totalPossibleScore);
+    tutorialContainer.appendChild(resultElement);
+
+    const downloadLink = document.createElement('a');
+    downloadLink.id = 'downloadLink';
+    downloadLink.className = 'btn btn-success btn-lg mt-3';
+    downloadLink.style.display = 'none';
+    downloadLink.innerText = 'Download Results';
+    tutorialContainer.appendChild(downloadLink);
 
     const blob = new Blob([formatResult(title, comments, result)], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const downloadLink = document.getElementById('downloadLink');
     downloadLink.href = url;
     downloadLink.download = 'result.txt';
     downloadLink.style.display = 'block';
-    downloadLink.innerText = 'Download Result';
+
+    // Trigger animation
+    setTimeout(() => {
+        resultElement.classList.add('show');
+    }, 10);
 }
 
 function getScores(data, numberOfStudents, key, include, offset) {
