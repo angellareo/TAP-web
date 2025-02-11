@@ -6,28 +6,42 @@
     <title>TAP: Test Analysis Program</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-    body, html {
-        height: 100%;
-        overflow: auto;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex: 0.97;
-    }
-
-    .form-container {
-        width: 100%;
-        max-width: 600px;
-    }
-
-    footer {
-        flex: 0.03;
-    }
+        body, html {
+            height: 100%;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 0.97;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+        }
+        .input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .char-counter {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: gray;
+            pointer-events: none;
+        }
+        .form-control {
+            padding-right: 40px; /* Space for counter */
+        }
+        footer {
+            flex: 0.03;
+        }
     </style>
 </head>
 <body>
@@ -59,7 +73,10 @@
                 </div>
                 <div class="form-group">
                     <label for="key">Key</label>
-                    <input type="text" class="form-control" id="key" placeholder="Enter key">
+                    <div class="input-wrapper">
+                        <input type="text" class="form-control" id="key" placeholder="Enter key" oninput="updateCounter()">
+                        <span class="char-counter" id="charCounter">0</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="options">Options</label>
@@ -71,8 +88,8 @@
                 </div>
                 <div class="form-group text-center">
                     <input type="file" id="dataFileInput" class="form-control-file" accept=".dat">
-                    <button type="button" class="btn btn-primary btn-lg mt-3" onclick="handleFileSelect()">Load Data</button>
                 </div>
+                <button type="button" class="btn btn-primary btn-lg mt-3" onclick="handleFileSelect()">Load Data</button>
             </form>
             <p id="result"></p>
             <a id="downloadLink" style="display: none;" class="btn btn-success btn-lg mt-3">Download Result</a>

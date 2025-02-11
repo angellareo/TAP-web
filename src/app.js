@@ -1,5 +1,11 @@
 const math = require('mathjs');
 
+function updateCounter() {
+    //let input = document.getElementById("key");
+    let counter = document.getElementById("charCounter");
+    counter.textContent = "a" //input.value.length;
+}
+
 document.addEventListener('DOMContentLoaded', (event) => {
     const dataFileInput = document.getElementById('dataFileInput');
     if (dataFileInput) {
