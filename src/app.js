@@ -22,20 +22,85 @@ document.addEventListener('DOMContentLoaded', (event) => {
     if (includeInput) {
         includeInput.addEventListener('input', () => updateCounter('include', 'charCounterInclude'));
     }
-});
 
-document.addEventListener('DOMContentLoaded', (event) => {
-    const dataFileInput = document.getElementById('dataFileInput');
-    if (dataFileInput) {
-        // Remove this event listener
-        // dataFileInput.addEventListener('change', handleFileSelect, false);
+    const prevSlideButton = document.getElementById('prevSlide');
+    const nextSlideButton = document.getElementById('nextSlide');
+    let currentSlideIndex = 0;
+
+    if (prevSlideButton && nextSlideButton) {
+        prevSlideButton.addEventListener('click', () => {
+            showSlide(currentSlideIndex - 1);
+        });
+
+        nextSlideButton.addEventListener('click', () => {
+            showSlide(currentSlideIndex + 1);
+        });
+    }
+
+    function showSlide(index) {
+        const slides = document.querySelectorAll('.result-slide');
+        if (index >= 0 && index < slides.length) {
+            slides[currentSlideIndex].style.transform = `translateX(-${index * 100}%)`;
+            currentSlideIndex = index;
+        }
     }
 });
 
 document.addEventListener('DOMContentLoaded', (event) => {
     const loadDataButton = document.getElementById('loadDataButton');
+    const editDataButton = document.getElementById('editDataButton');
+    const loadDataContainer = document.getElementById('loadDataContainer');
+    const editDataContainer = document.getElementById('editDataContainer');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const mainMenu = document.querySelector('.main-menu');
+    const backButton1 = document.getElementById('backButton1');
+    const backButton2 = document.getElementById('backButton2');
+    const backButton3 = document.getElementById('backButton3');
+    const processManualDataButton = document.getElementById('processManualDataButton');
+
     if (loadDataButton) {
-        loadDataButton.addEventListener('click', handleFileSelect);
+        loadDataButton.addEventListener('click', () => {
+            mainMenu.classList.add('hidden');
+            loadDataContainer.classList.remove('hidden');
+            loadDataContainer.classList.add('fade-in');
+        });
+    }
+
+    if (editDataButton) {
+        editDataButton.addEventListener('click', () => {
+            mainMenu.classList.add('hidden');
+            editDataContainer.classList.remove('hidden');
+            editDataContainer.classList.add('fade-in');
+        });
+    }
+
+    if (backButton1) {
+        backButton1.addEventListener('click', () => {
+            loadDataContainer.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+    }
+
+    if (backButton2) {
+        backButton2.addEventListener('click', () => {
+            editDataContainer.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+    }
+
+    if (backButton3) {
+        backButton3.addEventListener('click', () => {
+            resultsContainer.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+    }
+
+    if (processManualDataButton) {
+        processManualDataButton.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent page reload
+            const manualData = document.getElementById('manualDataInput').value;
+            processDataFromManualInput(manualData);
+        });
     }
 });
 
@@ -47,7 +112,7 @@ function handleFileSelect() {
         const reader = new FileReader();
         reader.onload = function(e) {
             const contents = e.target.result;
-            processData(contents);
+            processDataFromFile(contents);
         };
         reader.readAsText(file);
     } else {
@@ -55,11 +120,60 @@ function handleFileSelect() {
     }
 }
 
+function processDataFromFile(data) {
+    const lines = data.split('\n');
+    const title = lines[0];
+    const comments = lines[1];
+    const numberOfStudents = parseInt(lines[2]);
+    const numberOfItems = parseInt(lines[3]);
+    const offset = parseInt(lines[4]);
+    const key = lines[5];
+    const options = lines[6];
+    const include = lines[7];
+    const studentData = lines.slice(8, 8 + numberOfStudents).join('\n');
+
+    // Validate inputs
+    if (key.length !== numberOfItems || options.length !== numberOfItems || include.length !== numberOfItems) {
+        alert('Key, Options, and Include lengths must match the number of Test Items.');
+        return;
+    }
+
+    const totalPossibleScore = calculateTotalPossibleScore(include);
+    const scores = getScores(studentData, numberOfStudents, key, include, offset);
+    const result = calculateMetrics(scores, numberOfItems);
+
+    const resultsContainer = document.getElementById('resultsContainer');
+    resultsContainer.innerHTML = ''; // Clear previous contents
+
+    const resultElement = document.createElement('div');
+    resultElement.className = 'result-slide';
+    resultElement.innerText = formatResult(title, comments, result, totalPossibleScore);
+    resultsContainer.appendChild(resultElement);
+
+    const downloadLink = document.createElement('a');
+    downloadLink.id = 'downloadLink';
+    downloadLink.className = 'btn btn-success btn-lg mt-3';
+    downloadLink.style.display = 'none';
+    downloadLink.innerText = 'Download Results';
+    resultsContainer.appendChild(downloadLink);
+
+    const blob = new Blob([formatResult(title, comments, result)], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    downloadLink.href = url;
+    downloadLink.download = 'result.txt';
+    downloadLink.style.display = 'block';
+
+    // Show results container
+    document.querySelector('.main-menu').classList.add('hidden');
+    resultsContainer.classList.remove('hidden');
+    resultsContainer.classList.add('fade-in');
+}
+
 function calculateTotalPossibleScore(include) {
     return include.split('').reduce((acc, val) => val.toLowerCase() === 'y' ? acc + 1 : acc, 0);
 }
 
-function processData(data) {
+function processDataFromManualInput(data) {
     const title = document.getElementById('title').value;
     const comments = document.getElementById('comments').value;
     const numberOfStudents = parseInt(document.getElementById('students').value);
@@ -79,21 +193,20 @@ function processData(data) {
     const scores = getScores(data, numberOfStudents, key, include, offset);
     const result = calculateMetrics(scores, numberOfItems);
 
-    const tutorialContainer = document.querySelector('.tutorial-container');
-    tutorialContainer.innerHTML = ''; // Clear previous contents
+    const resultsSlides = document.getElementById('resultsSlides');
+    resultsSlides.innerHTML = ''; // Clear previous slides
 
-    const resultElement = document.createElement('p');
-    resultElement.id = 'result';
-    resultElement.className = 'result-animation';
+    const resultElement = document.createElement('div');
+    resultElement.className = 'result-slide';
     resultElement.innerText = formatResult(title, comments, result, totalPossibleScore);
-    tutorialContainer.appendChild(resultElement);
+    resultsSlides.appendChild(resultElement);
 
     const downloadLink = document.createElement('a');
     downloadLink.id = 'downloadLink';
     downloadLink.className = 'btn btn-success btn-lg mt-3';
     downloadLink.style.display = 'none';
     downloadLink.innerText = 'Download Results';
-    tutorialContainer.appendChild(downloadLink);
+    resultsSlides.appendChild(downloadLink);
 
     const blob = new Blob([formatResult(title, comments, result)], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -101,10 +214,10 @@ function processData(data) {
     downloadLink.download = 'result.txt';
     downloadLink.style.display = 'block';
 
-    // Trigger animation
-    setTimeout(() => {
-        resultElement.classList.add('show');
-    }, 10);
+    // Show results container
+    document.getElementById('editDataContainer').classList.add('hidden');
+    document.getElementById('resultsContainer').classList.remove('hidden');
+    document.getElementById('resultsContainer').classList.add('fade-in');
 }
 
 function getScores(data, numberOfStudents, key, include, offset) {
@@ -164,10 +277,10 @@ function formatResult(title, comments, metrics, totalPossibleScore) {
     return `Title: ${title}\nComments: ${comments}\n` +
            `Number of Examinees: ${metrics.numExaminees}\n` +
            `Total Possible Score: ${totalPossibleScore}\n` +
-           `Minimum Score: ${metrics.minScore.toFixed(3)} = ${(metrics.minScore / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
-           `Maximum Score: ${metrics.maxScore.toFixed(3)} = ${(metrics.maxScore / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
-           `Median Score: ${metrics.median.toFixed(3)} = ${(metrics.median / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
-           `Mean Score: ${metrics.mean.toFixed(3)} = ${(metrics.mean / metrics.totalPossibleScore * 100).toFixed(1)}%\n` +
+           `Minimum Score: ${metrics.minScore.toFixed(3)} = ${(metrics.minScore / totalPossibleScore * 100).toFixed(1)}%\n` +
+           `Maximum Score: ${metrics.maxScore.toFixed(3)} = ${(metrics.maxScore / totalPossibleScore * 100).toFixed(1)}%\n` +
+           `Median Score: ${metrics.median.toFixed(3)} = ${(metrics.median / totalPossibleScore * 100).toFixed(1)}%\n` +
+           `Mean Score: ${metrics.mean.toFixed(3)} = ${(metrics.mean / totalPossibleScore * 100).toFixed(1)}%\n` +
            `Standard Deviation: ${metrics.stdDevPop.toFixed(3)}\n` +
            `Variance: ${metrics.varPop.toFixed(3)}\n` +
            `Skewness: ${metrics.skewness.toFixed(3)}\n` +

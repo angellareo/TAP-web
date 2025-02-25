@@ -9,10 +9,31 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <div class="main-menu">
+        <div class="options-container operation-selection">
+            <h1>TAP-web</h1>
+            <button class="btn btn-primary btn-lg" id="editDataButton">Edit Data</button>
+            <button class="btn btn-secondary btn-lg" id="loadDataButton">Load File</button>
+        </div>
+        <div class="info-container fade-in-text" id="infoContainer">
+            <ul>
+                <li><i class="fas fa-cloud"></i> <strong>Availability:</strong> Based on <a href="https://people.ohio.edu/brooksg/#TAP:_Test_Analysis_Program">TAP: Test Analysis Program</a>. Available everywhere.</li>
+                <li><i class="fas fa-code-branch"></i> <strong>Free Software:</strong> Use it as you wish. <a href="https://github.com/angellareo/TAP-web">Studying it and modifying it</a> is encouraged.</li>
+                <li><i class="fas fa-lock"></i> <strong>Privacy:</strong> The data NEVER leaves your computer.</li>
+                <li><i class="fas fa-check"></i> <strong>Check:</strong> Get information about your tests.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="container hidden" id="loadDataContainer">
+        <button class="btn btn-light back-button" id="backButton1">Back</button>
+        <div class="content">
+            
+        </div>
+    </div>
+    <div class="container hidden" id="editDataContainer">
+        <button class="btn btn-light back-button" id="backButton2">Back</button>
         <div class="content">
             <div class="form-container">
-                <h1 class="text-center">TAP-web: Test Analysis Program</h1>
                 <form>
                     <div class="mb-3">
                         <label for="title">Title</label>
@@ -57,19 +78,17 @@
                             <span class="char-counter" id="charCounterInclude">0</span>
                         </div>
                     </div>
-                    <div class="mb-3 text-center">
-                        <input type="file" id="dataFileInput" class="form-control-file" accept=".dat">
-                        <button type="button" class="btn btn-primary btn-lg mt-3" id="loadDataButton">Load Data</button>
+                    <div class="mb-3 text-center input-wrapper">
+                        <textarea id="manualDataInput" class="form-control form-counter" rows="10" cols="60" placeholder="Enter data manually here..."></textarea>
                     </div>
+                    <button id="processManualDataButton" class="btn btn-primary">Process Data</button>                    
                 </form>
             </div>
+            
             <div class="tutorial-container fade-in-text">
-                <p>Based on <a href="https://people.ohio.edu/brooksg/#TAP:_Test_Analysis_Program">TAP: Test Analysis Program</a>.</p>
-                <p>FREE SOFTWARE: Use it as you wish, <a href="https://github.com/angellareo/TAP-web">studying and modifying</a> it is encouraged.</p>
-                <p>PRIVACY: The data NEVER leaves your computer</p>
                 <h2>Tutorial</h2>
-                <p>Offset: number of characters to omit in each row.</p>
-                <p>Key: D is ommission.</p>
+                <p># Students: Should match the number of rows</p>
+                <p>Offset: Number of characters to omit at the beginning of each row.</p>
                 <p>TODO:</p>
                 <ul>
                     <li>- Score Frequency Table </li>
@@ -81,6 +100,19 @@
             </div>
         </div>
     </div>
+    <div class="container hidden" id="resultsContainer">
+        <h1>General results</h1>
+        <button class="btn btn-light back-button" id="backButton3">Back</button>
+        <div class="content">
+            <div class="results-wrapper">
+                <button class="btn btn-secondary" id="prevSlide">Previous</button>
+                <div class="results-slides" id="resultsSlides">
+                    <!-- Slides will be dynamically added here -->
+                </div>
+                <button class="btn btn-secondary" id="nextSlide">Next</button>
+            </div>
+        </div>
+    </div>
     <footer class="footer mt-auto py-3 bg-secondary text-light">
         <div class="container text-center">
             <span> Made with ❤️ by <a href="https://github.com/angellareo" target="_blank" class="link-body-emphasis">Angel Lareo</a> | </span> 
@@ -88,7 +120,6 @@
             <a href="https://mastodon.social/@alareo" class="link-light"><i class="fab fa-mastodon"></i></a>
             <a href="https://scholar.google.com/citations?user=zzaFkkoAAAAJ&hl=es" class="link-light"><i class="fab fa-google-scholar"></i></a>
             <span> | Licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" class="link-body-emphasis">GPL</a></span>
-
         </div>
     </footer>
     <script src="bundle.js"></script>
