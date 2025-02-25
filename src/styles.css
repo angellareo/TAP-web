@@ -35,16 +35,16 @@ body, html {
     border: 3px solid #007bff; /* Blue border */
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 0 10px rgba(0, 0, 255, 0.2); /* Optional: Add shadow for better visibility */
-
 }
 
 .tutorial-container {
     width: 35%;
     max-width: 300px;
+    margin: 20px 0 0 20px;
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .content {
         flex-direction: column;
         align-items: center;
@@ -85,11 +85,42 @@ footer {
     padding: 10px;
 }
 
-.result-animation {
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
+
+/* FADE-IN Animation */
+
+:root {
+    --duration: 2s;
 }
 
-.result-animation.show {
-    opacity: 1;
+.fade-in-text {
+    animation: fadeIn var(--duration);
+    -webkit-animation: fadeIn var(--duration);
+    -moz-animation: fadeIn var(--duration);
+    -o-animation: fadeIn var(--duration);
+    -ms-animation: fadeIn var(--duration);
+}
+
+@keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+@-moz-keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+@-webkit-keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+@-o-keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+@-ms-keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
 }
