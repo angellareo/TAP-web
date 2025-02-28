@@ -39,7 +39,6 @@ function getScores(data, key, include, offset) {
 }
 
 function calculateScore(line, key, include, offset) {
-    console.log(line, key, include, offset);
     line = line.slice(offset);
     let score = 0;
     for (let i = 0; i < key.length; i++) {
