@@ -23,3 +23,6 @@ run: build
 
 publish: build
 	gh-pages -d dist
+
+test:
+	npm test

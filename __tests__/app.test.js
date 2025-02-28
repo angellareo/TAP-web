@@ -1,4 +1,5 @@
-const { getScores, calculateScore, calculateMetrics, calculateSkewness, calculateKurtosis, calculateTotalPossibleScore } = require('../src/app.js');
+const { getScores, calculateScore, calculateSkewness, calculateKurtosis, calculateTotalPossibleScore } = require('../src/js/controller/dataProcessors.js');
+const { calculateQuickExamineeResults } = require('../src/js/controller/results/quickExaminee.js');
 
 test('calculateScore should calculate the correct score', () => {
   const line = ' AABBCCABCC';
@@ -39,8 +40,8 @@ test('calculateMetrics should calculate correct metrics', () => {
   const offset = 1;
 
   const totalPossibleScore = calculateTotalPossibleScore(include);
-  const scores = getScores(data, numberOfStudents, key, include, offset);
-  const metrics = calculateMetrics(scores);
+  const scores = getScores(data.split('\n'), key, include, offset);
+  const metrics = calculateQuickExamineeResults(scores);
 
   expect(metrics.numExaminees).toBe(3);
   expect(totalPossibleScore).toBe(10);
