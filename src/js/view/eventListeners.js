@@ -52,7 +52,11 @@ export function initializeEventListeners() {
 
     if (loadDataButton) {
         loadDataButton.addEventListener('click', () => {
-            handleFileSelect();
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.dat';
+            fileInput.onchange = () => handleFileSelect(fileInput);
+            fileInput.click();
         });
     }
 }

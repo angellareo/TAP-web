@@ -1,9 +1,9 @@
 import { processData } from '../../controller/dataProcessors.js';
 import { validateInputs } from '../../controller/dataProcessors.js';
 import { calculateQuickTestItemResults } from '../../controller/results/quickTestItem.js';
+import { showResults } from '../results/results.js';
 
-function handleFileSelect() {
-    const fileInput = document.getElementById('dataFileInput');
+function handleFileSelect(fileInput) {
     const file = fileInput.files[0];
 
     if (file) {
@@ -20,15 +20,32 @@ function handleFileSelect() {
 
 function getDataFromFile(data) {
     const lines = data.split('\n');
-    const title = lines[0];
-    const comments = lines[1];
-    const numberOfStudents = parseInt(lines[2]);
-    const numberOfItems = parseInt(lines[3]);
-    const offset = parseInt(lines[4]);
-    const key = lines[5];
-    const options = lines[6];
-    const include = lines[7];
-    const studentData = lines.slice(8, 8 + numberOfStudents).join('\n');
+    const dataObject = {};
+    let dataIndex = -1;
+
+    lines.forEach((line, index) => {
+        const [key, value] = line.split(':');
+        if (key.trim() === 'data') {
+            dataIndex = index + 1;
+        } else if (key && value !== undefined) {
+            dataObject[key.trim()] = value.trim();
+        }
+    });
+
+    const title = dataObject.title;
+    const comments = dataObject.comments;
+    const numberOfStudents = parseInt(dataObject.nstudents);
+    const numberOfItems = parseInt(dataObject.nitems);
+    const offset = parseInt(dataObject.noffset);
+    const key = dataObject.key;
+    const options = dataObject.options;
+    const include = dataObject.include;
+
+    const studentData = lines.slice(dataIndex, dataIndex + numberOfStudents);
+    if (studentData.length !== numberOfStudents || studentData.some(line => line.length !== numberOfItems)) {
+        alert('Data format error: number of students or items does not match the specified values.');
+        return;
+    }
 
     if (validateInputs(key, options, include, numberOfItems)) {
         const { totalPossibleScore, scores, result } = processData(numberOfStudents, offset, key, include, studentData);

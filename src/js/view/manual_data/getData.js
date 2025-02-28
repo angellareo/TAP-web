@@ -14,7 +14,7 @@ function getDataFromManualInput(data) {
     const studentData = document.getElementById('manualDataInput').value.split('\n').slice(0, numberOfStudents);
 
     if (validateInputs (key, options, include, numberOfItems)){
-        const { totalPossibleScore, scores, result } = processData(numberOfStudents, offset, key, include, studentData);
+        const { totalPossibleScore, scores} = processData(numberOfStudents, offset, key, include, studentData);
         const quickTestItemResults = calculateQuickTestItemResults(studentData, key, include);
         showResults(title, comments, result, totalPossibleScore, quickTestItemResults);
     }

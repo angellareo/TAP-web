@@ -46,6 +46,7 @@ function showResults(title, comments, result, totalPossibleScore, quickTestItemR
 
     // Show results container
     document.getElementById('editDataContainer').classList.add('hidden');
+    document.querySelector('.main-menu').classList.add('hidden');
     document.getElementById('resultsContainer').classList.remove('hidden');
     document.getElementById('resultsContainer').classList.add('fade-in');
 }
