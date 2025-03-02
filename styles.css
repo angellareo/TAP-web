@@ -35,16 +35,22 @@ body, html {
     border: 3px solid #007bff; /* Blue border */
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 0 10px rgba(0, 0, 255, 0.2); /* Optional: Add shadow for better visibility */
-
 }
 
 .tutorial-container {
     width: 35%;
     max-width: 300px;
+    margin: 20px 0 0 20px;
+}
+
+.info-container {
+    text-align: left;
+    max-width: 600px;
+    margin: 20px;
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .content {
         flex-direction: column;
         align-items: center;
@@ -85,11 +91,154 @@ footer {
     padding: 10px;
 }
 
-.result-animation {
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
+/* Main menu styling */
+.main-menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 20px;
+    height: 100vh;
+    background: white;
+    color: black;
+    text-align: center;
 }
 
-.result-animation.show {
-    opacity: 1;
+.main-menu h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    font-family: 'Arial', sans-serif; /* Use a prettier font */
+}
+
+.options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.options-container button {
+    width: 250px;
+    padding: 15px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.options-container button:hover {
+    transform: scale(1.05);
+    background-color: #0056b3;
+}
+
+.info-container {
+    max-width: 600px;
+    margin-top: 20px;
+    background: #f0f0f0; /* Gray background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.info-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-container li {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.info-container li i {
+    margin-right: 10px;
+}
+
+/* Operation selection container */
+/* .operation-selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: row;
+    gap: 20px;
+} */
+
+/* Hide elements by default */
+.hidden {
+    display: none;
+}
+
+/* FADE-IN Animation */
+
+:root {
+    --duration: 2s;
+}
+
+.fade-in-text {
+    animation: fadeIn var(--duration);
+    -webkit-animation: fadeIn(var(--duration));
+    -moz-animation: fadeIn(var(--duration));
+    -o-animation: fadeIn(var(--duration));
+    -ms-animation: fadeIn(var(--duration));
+}
+
+.fade-in {
+    animation: fadeIn var(--duration);
+}
+
+@keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+@-moz-keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+@-webkit-keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+@-o-keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+@-ms-keyframes fadeIn {
+0% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+/* Back button */
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+/* Results menu styling */
+.results-menu {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Results content styling */
+.results-content {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Button styling for results menu */
+.results-menu .btn {
+    flex: 1;
+    max-width: 200px;
 }
