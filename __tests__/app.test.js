@@ -1,13 +1,13 @@
-const { getScores, calculateScore, calculateSkewness, calculateKurtosis, calculateTotalPossibleScore } = require('../src/js/controller/dataProcessors.js');
-const { calculateQuickExamineeResults } = require('../src/js/controller/results/quickExaminee.js');
+const { getDataFromFile, getScores, calculateScore, calculateSkewness, calculateKurtosis, calculateTotalPossibleScore, calculateQuickExamineeResults } = require('../src/js/controller/dataProcessors.js');
+const fs = require('fs');
+const path = require('path');
 
 test('calculateScore should calculate the correct score', () => {
-  const line = ' AABBCCABCC';
+  const line = 'AABBCCABCC';
   const key = 'AABBCCABCC';
   const include = 'YYYYYYYYYY';
-  const offset = 1;
 
-  const score = calculateScore(line, key, include, offset);
+  const score = calculateScore(line, key);
   const totalScore = calculateTotalPossibleScore(include);
   expect(score).toBe(totalScore);
 });
@@ -32,25 +32,33 @@ test('calculateKurtosis should calculate correct kurtosis', () => {
   expect(kurtosis).toBeCloseTo(-1.5, 1);
 });
 
-test('calculateMetrics should calculate correct metrics', () => {
-  const data = ' ACBAABAABA\n AAABABABCC\n AACCCCABCC';
-  const key = 'AABBCCABCC';
-  const include = 'YYYYYYYYYY';
-  const numberOfStudents = 3;
-  const offset = 1;
+test('getDataFromFile should process data correctly', () => {
+    const filePath = path.join(__dirname, '../data/test2.dat');
+    const data = fs.readFileSync(filePath, 'utf8');
+    const {
+      title,
+      comments,
+      numberOfStudents,
+      numberOfItems,
+      offset,
+      key,
+      options,
+      include,
+      studentData
+    } = getDataFromFile(data);
 
-  const totalPossibleScore = calculateTotalPossibleScore(include);
-  const scores = getScores(data.split('\n'), key, include, offset);
-  const metrics = calculateQuickExamineeResults(scores);
+    const totalPossibleScore = calculateTotalPossibleScore(include);
+    const scores = getScores(studentData, key, include, offset);
+    const metrics = calculateQuickExamineeResults(scores);
 
-  expect(metrics.numExaminees).toBe(3);
-  expect(totalPossibleScore).toBe(10);
-  expect(metrics.minScore).toBe(3);
-  expect(metrics.maxScore).toBe(8);
-  expect(metrics.mean).toBeCloseTo(6.0, 0.15);
-  expect(metrics.median).toBe(7);
-  expect(metrics.stdDevPop).toBeCloseTo(2.16, 1);
-  expect(metrics.varPop).toBeCloseTo(4.6667, 4);
-  expect(metrics.skewness).toBeCloseTo(-0.595, 3);
-  expect(metrics.kurtosis).toBeCloseTo(-1.5, 1);
-});
+    expect(metrics.numExaminees).toBe(10);
+    expect(totalPossibleScore).toBe(10);
+    expect(metrics.minScore).toBe(3);
+    expect(metrics.maxScore).toBe(9);
+    expect(metrics.mean).toBeCloseTo(5.4, 0.15);
+    expect(metrics.median).toBe(5);
+    expect(metrics.stdDevPop).toBeCloseTo(1.855, 0.01);
+    expect(metrics.varPop).toBeCloseTo(3.440, 0.01);
+    expect(metrics.skewness).toBeCloseTo(0.722, 0.01);
+    expect(metrics.kurtosis).toBeCloseTo(-0.761, 0.01);
+  });

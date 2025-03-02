@@ -1,5 +1,4 @@
-import { processData, validateInputs } from '../../controller/dataProcessors.js';
-import { calculateQuickTestItemResults } from '../../controller/results/quickTestItem.js';
+import { processData, validateInputs, calculateQuickTestItemResults } from '../../controller/dataProcessors.js';
 import { showResults } from '../results/results.js';
 
 function getDataFromManualInput(data) {

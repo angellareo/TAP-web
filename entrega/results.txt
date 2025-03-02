@@ -1,0 +1,210 @@
+For best results,
+  set font to COURIER or COURIER NEW 9-10 Point, 
+  turn WORD WRAP on, and/or reduce margins.
+
+******************************************************
+
+TAP: Test Analysis Program (version 19.1.4)
+Copyright © 2003-2018 Gordon P. Brooks
+Contact: brooksg@ohio.edu
+
+******************************************************
+
+
+this is the title
+
+TITLE:   this is the title
+COMMENT: these are the comments
+***************************************************************************
+Full Test Analysis
+***************************************************************************
+
+=======================
+Examinee Score Summary 
+=======================
+
+Number of Examinees = 12
+Total Possible Score= 9
+Minimum Score       = 2.000 = 22.2%
+Maximum Score       = 8.000 = 88.9%
+Median Score        = 4.000 = 44.4%
+Mean Score          = 4.250 = 47.2%
+Standard Deviation  = 1.738
+Variance            = 3.021
+Skewness            = 0.946
+Kurtosis            = -0.263
+
+=====================
+Score Frequency Table
+=====================
+
+         Z           Rel.   Cum.   Cum.     Percentile           Normalized
+Score  Score  Freq.  Freq.  Freq.  Percent     Rank     Stanine   Zn Score 
+-----  -----  -----  -----  -----  -------  ----------  -------  ----------
+   2   -1.29      1  0.083      1    8.33       4.2        2        -1.73
+   3   -0.72      4  0.333      5   41.67      25.0        4        -0.67
+   4   -0.14      4  0.333      9   75.00      58.3        5         0.01
+   6    1.01      1  0.083     10   83.33      79.2        7         0.81
+   7    1.58      1  0.083     11   91.67      87.5        7         1.15
+   8    2.16      1  0.083     12  100.00      95.8        9         1.73
+              =====  =====
+     Totals:     12  1.000
+
+=========
+Bar Graph
+=========
+
+Score    Count  Graph (each @ represents 1 case)
+-------  -----  --------------------------------
+  2.00      1   @
+  3.00      4   @@@@
+  4.00      4   @@@@
+  5.00      0   
+  6.00      1   @
+  7.00      1   @
+  8.00      1   @
+
+
+=====================
+Stem-and-Leaf Display
+=====================
+
+Stem Leaves (width=10)
+---- -----------------
+  0 . 233334444
+  0 . 678
+
+
+
+TITLE:   this is the title
+COMMENT: these are the comments
+***************************************************************************
+Item and Test Analysis
+***************************************************************************
+
+              Number  Item Disc.  # Correct   # Correct    Point Adj  
+Item    Key   Correct Diff Index in High Grp  in Low Grp   Biser PtBis
+------- ----- ------- ---- ----- ------------ ------------ ----- -----
+Item 02 (3 )       4  0.33  1.00     3 (1.00)     0 (0.00)  0.81  0.68
+Item 03 (2 )       4  0.33  1.00     3 (1.00)     0 (0.00)  0.81  0.68
+Item 04 (1 )       5  0.42  0.60     3 (1.00)     2 (0.40)  0.56  0.32
+Item 05 (1 )#      5  0.42  0.13     1 (0.33)     1 (0.20)  0.17 -0.11
+Item 06 (2 )       6  0.50  0.27     2 (0.67)     2 (0.40)  0.34  0.05
+Item 07 (1 )      11  0.92  0.20     3 (1.00)     4 (0.80)  0.22  0.06
+Item 08 (1 )       4  0.33  1.00     3 (1.00)     0 (0.00)  0.81  0.68
+Item 09 (2 )       3  0.25  1.00     3 (1.00)     0 (0.00)  0.91  0.85
+Item 10 (3 )#      9  0.75 -1.00     0 (0.00)     5 (1.00) -0.91 -0.94
+==========================================================================
+# marks potential problems (p<0.2 or p>0.95, D<0, pbis<0, adjpbis<0)
+These results have been sorted by item number
+==========================================================================
+Items Excluded from Analysis:  1
+==========================================================================
+
+Number of Items Excluded   = 1
+Number of Items Analyzed   = 9
+Mean Item Difficulty       = 0.472
+Mean Discrimination Index  = 0.467
+Mean Point Biserial        = 0.414
+Mean Adj. Point Biserial   = 0.252
+KR20 (Alpha)               = 0.434
+KR21                       = 0.290
+SEM (from KR20)            = 1.307
+High Grp Min Score (n=3)   = 6.000
+Low Grp Max Score (n=5)    = 3.000
+---------------------------------------
+# Potential Problem Items  = 2
+defined as:    difficulty <= 0.20(0)
+        or:    difficulty >= 0.95(0)
+        or:       D index <= 0.00(1)
+        or: AdjPtBiserial <= 0.00(2)
+
+Split-Half (1st/ 2nd) Reliability = 0.631 (with Spearman-Brown = 0.773)
+Split-Half (Odd/Even) Reliability = 0.857 (with Spearman-Brown = 0.923)
+
+Minimum Item Diff.   =  0.250, Maximum Item Diff.   = 0.917
+Minimum Disc. Index  = -1.000, Maximum Disc. Index  = 1.000
+Minimum Pt. Biserial = -0.914, Maximum Pt. Biserial = 0.914
+
+To obtain a KR-20 Reliability of .80, the test must be 5.21 times longer,
+  for a total of 47 items of similar quality to those in the test now.
+
+To obtain a KR-20 Reliability of .90, the test must be 11.71 times longer,
+  for a total of 105 items of similar quality to those in the test now.
+
+***************************************************************************
+Additional Item Analysis
+***************************************************************************
+
+         Scale Mean  Scale SD  KR20     SEM                Adjusted
+         if Item     if Item   if Item  if Item  Biserial  Biserial
+Item     Deleted     Deleted   Deleted  Deleted  Correl.   Correl. 
+-------  ----------  --------  -------  -------  --------  --------
+Item 02     3.917      1.382    0.166    1.262     1.000     0.885
+Item 03     3.917      1.382    0.166    1.262     1.000     0.885
+Item 04     3.833      1.518    0.344    1.230     0.707     0.399
+Item 05     3.833      1.724    0.523+   1.190     0.215    -0.145
+Item 06     3.750      1.639    0.461+   1.204     0.421     0.064
+Item 07     3.333      1.700    0.440+   1.272     0.391     0.107
+Item 08     3.917      1.382    0.166    1.262     1.000     0.885
+Item 09     4.000      1.354    0.104    1.282     1.000     1.000
+Item 10     3.500      2.141    0.727+   1.118    -1.245    -1.286
+==========================================================================
+Items Excluded from Analysis:  1
+==========================================================================
++ indicates that KR20 (0.434) improves if the item is removed
+
+Mean Biserial Correlation = 0.499
+Minimum Biserial Corr.    = -1.245
+Maximum Biserial Corr.    = 1.000
+
+
+
+***************************************************************************
+Answer Key Analysis
+***************************************************************************
+==================================
+Bar Chart for Correct Answer Usage
+==================================
+
+Answer Key  Count  Graph (each @ represents 1 case)
+----------  -----  --------------------------------
+Option 1/A     4   @@@@
+Option 2/B     3   @@@
+Option 3/C     2   @@
+Option 4/D     0   
+
+
+=====================================
+Bar Chart for Number of Options Usage
+=====================================
+
+# Options  Count  Graph (each @ represents 1 case)
+---------  -----  --------------------------------
+2 Options     0   
+3 Options     0   
+4 Options     9   @@@@@@@@@
+
+
+************************************************************
+Item Included, Answer Key, Additional Correct Options
+************************************************************
+===============
+ITEMS INCLUDED:
+===============
+ 2,  3,  4,  5,  6,  7,  8,  9, 10
+
+===============
+ITEMS EXCLUDED:
+===============
+ 1
+
+============================
+CORRECT ANSWERS (Item#-Key):
+============================
+  # 2-3  # 3-2  # 4-1  # 5-1  # 6-2  # 7-1  # 8-1  # 9-2  #10-3
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TAP: Test Analysis Program (version 19.1.4)
+Copyright © 2003-2018 Gordon P. Brooks
+Contact: brooksg@ohio.edu

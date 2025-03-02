@@ -44,7 +44,6 @@ export function initializeEventListeners() {
 
     if (processManualDataButton) {
         processManualDataButton.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent page reload
             const manualData = document.getElementById('manualDataInput').value;
             getDataFromManualInput(manualData);
         });
