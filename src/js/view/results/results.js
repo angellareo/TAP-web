@@ -24,11 +24,11 @@ function showQuickExamineeResults() {
 
 function showQuickTestItemResults() {
     const resultsContent = document.getElementById('resultsContent');
-    resultsContent.innerHTML = '<h2>Quick Test/Item Results</h2>' + formatQuickTestItemResults(currentResults.quickTestItemResults);
+    resultsContent.innerHTML = '<h2>Quick Test/Item Results</h2>' + formatQuickTestItemResults();
 }
 
-function showResults(title, comments, result, totalPossibleScore, quickTestItemResults) {
-    currentResults = { title, comments, result, totalPossibleScore, quickTestItemResults };
+function showResults(title, comments, result, totalPossibleScore) {
+    currentResults = { title, comments, result, totalPossibleScore };
 
     const resultsMenu = document.getElementById('resultsMenu');
     resultsMenu.innerHTML = `

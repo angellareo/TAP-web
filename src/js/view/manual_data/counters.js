@@ -1,3 +1,9 @@
+function updateCounter(inputId, counterId) {
+    let input = document.getElementById(inputId);
+    let counter = document.getElementById(counterId);
+    counter.textContent = input.value.length;
+}
+
 function initializeEventListeners() {
     const keyInput = document.getElementById('key');
     if (keyInput) {
@@ -13,12 +19,6 @@ function initializeEventListeners() {
     if (includeInput) {
         includeInput.addEventListener('input', () => updateCounter('include', 'charCounterInclude'));
     }
-}
-
-function updateCounter(inputId, counterId) {
-    let input = document.getElementById(inputId);
-    let counter = document.getElementById(counterId);
-    counter.textContent = input.value.length;
 }
 
 export {

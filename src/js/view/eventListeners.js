@@ -1,51 +1,18 @@
-import { getDataFromManualInput } from './manual_data/getData.js';
+import { processDataFromManualInput } from './manual_data/getData.js';
 import { handleFileSelect } from './file_data/getData.js';
 
 export function initializeEventListeners() {
-    const loadDataButton = document.getElementById('loadDataButton');
-    const editDataButton = document.getElementById('editDataButton');
-    const loadDataContainer = document.getElementById('loadDataContainer');
-    const editDataContainer = document.getElementById('editDataContainer');
-    const resultsContainer = document.getElementById('resultsContainer');
+    
+    // INDEX screen
     const mainMenu = document.querySelector('.main-menu');
-    const backButton1 = document.getElementById('backButton1');
-    const backButton2 = document.getElementById('backButton2');
-    const backButton3 = document.getElementById('backButton3');
-    const processManualDataButton = document.getElementById('processManualDataButton');
+    const editDataButton = document.getElementById('editDataButton');
+    const loadDataButton = document.getElementById('loadDataButton');
 
     if (editDataButton) {
         editDataButton.addEventListener('click', () => {
             mainMenu.classList.add('hidden');
             editDataContainer.classList.remove('hidden');
             editDataContainer.classList.add('fade-in');
-        });
-    }
-
-    if (backButton1) {
-        backButton1.addEventListener('click', () => {
-            loadDataContainer.classList.add('hidden');
-            mainMenu.classList.remove('hidden');
-        });
-    }
-
-    if (backButton2) {
-        backButton2.addEventListener('click', () => {
-            editDataContainer.classList.add('hidden');
-            mainMenu.classList.remove('hidden');
-        });
-    }
-
-    if (backButton3) {
-        backButton3.addEventListener('click', () => {
-            resultsContainer.classList.add('hidden');
-            mainMenu.classList.remove('hidden');
-        });
-    }
-
-    if (processManualDataButton) {
-        processManualDataButton.addEventListener('click', (event) => {
-            const manualData = document.getElementById('manualDataInput').value;
-            getDataFromManualInput(manualData);
         });
     }
 
@@ -58,4 +25,69 @@ export function initializeEventListeners() {
             fileInput.click();
         });
     }
+
+    // LOAD DATA screen (not needed?)
+    const loadDataContainer = document.getElementById('loadDataContainer');
+    const backButton1 = document.getElementById('backButton1');
+
+    if (backButton1) {
+        backButton1.addEventListener('click', () => {
+            loadDataContainer.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+    }
+
+    // EDIT DATA screen
+    const backButton2 = document.getElementById('backButton2');
+    const editDataContainer = document.getElementById('editDataContainer');
+    const tutorialContainer = document.getElementById('tutorialContainer');
+    const helpButton = document.getElementById('helpButton');
+    const saveDataButton = document.getElementById('saveDataButton');
+    const processManualDataButton = document.getElementById('processManualDataButton');
+
+    if (backButton2) {
+        backButton2.addEventListener('click', () => {
+            editDataContainer.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+    }
+
+    if (helpButton) {
+        helpButton.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent form submission, although type="button" in HTML should do it
+
+            if (tutorialContainer.classList.contains('hidden')) {
+                tutorialContainer.classList.remove('hidden');
+            }
+            else {
+                tutorialContainer.classList.add('hidden');
+            }
+        });
+    }
+
+    if (saveDataButton) {
+        saveDataButton.addEventListener('click', (event) => {
+            const manualData = document.getElementById('manualDataInput').value;
+            saveDataFromManualInput(manualData);
+        });
+    }
+
+    if (processManualDataButton) {
+        processManualDataButton.addEventListener('click', (event) => {
+            const manualData = document.getElementById('manualDataInput').value;
+            processDataFromManualInput(manualData);
+        });
+    }
+
+    // RESULTS screen    
+    const backButton3 = document.getElementById('backButton3');
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    if (backButton3) {
+        backButton3.addEventListener('click', () => {
+            resultsContainer.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+    }
+
 }

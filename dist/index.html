@@ -81,11 +81,17 @@
                     <div class="mb-3 text-center input-wrapper">
                         <textarea id="manualDataInput" class="form-control form-counter" rows="10" cols="60" placeholder="Enter data manually here..."></textarea>
                     </div>
-                    <button id="processManualDataButton" class="btn btn-primary">Process Data</button>                    
+                    <div class="d-flex justify-content-between">
+                        <button id="helpButton" class="btn" type="button">Help</button>
+                        <div>
+                            <button id="saveDataButton" class="btn me-2" type="button">Save Data</button>
+                            <button id="processManualDataButton" class="btn btn-primary" type="button">Process Data</button>
+                        </div>
+                    </div>
                 </form>
             </div>
             
-            <div class="tutorial-container fade-in-text">
+            <div class="tutorial-container hidden" id="tutorialContainer">
                 <h2>Tutorial</h2>
                 <p># Students: Should match the number of rows</p>
                 <p>Offset: Number of characters to omit at the beginning of each row.</p>
@@ -102,6 +108,7 @@
     </div>
     <div class="container hidden" id="resultsContainer">
         <button class="btn btn-light back-button" id="backButton3">Back</button>
+        <div id="resultsHeader" class="results-header"></div>
         <div id="resultsMenu" class="results-menu"></div>
         <div id="resultsContent" class="results-content"></div>
     </div>

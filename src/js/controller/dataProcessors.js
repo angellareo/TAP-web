@@ -38,8 +38,8 @@ function removeOffset(studentData, offset) {
 
 function removeNValues(key, options, include, studentData) {
     // function to remove N values from include from the key, options, and studentData
-    key = key.split('').filter((_, idx) => include[idx].toLowerCase() === 'y').join('');
-    options = options.split('').filter((_, idx) => include[idx].toLowerCase() === 'y').join('');
+    key = String(key).split('').filter((_, idx) => include[idx].toLowerCase() === 'y').join('');
+    options = String(options).split('').filter((_, idx) => include[idx].toLowerCase() === 'y').join('');
     studentData = studentData.map(line => line.split('').filter((_, idx) => include[idx].toLowerCase() === 'y').join(''));
     return {key, options, studentData};
 }
@@ -76,6 +76,8 @@ function processData(offset, key, options, include, studentData) {
     calculateQuickExamineeResults(fscores);
     calculateQuickTestItemResults(fixed.studentData, fixed.key, include);
     calculateItemResults(fixed.studentData, fixed.key);
+
+    return  { totalPossibleScore, fscores};
 }
 
 function validateInputs(key, options, include, numberOfItems) {
@@ -296,7 +298,7 @@ function calculateItemResults(studentData, key){
         const ST = topGroup.filter(student => student.responses[i] === key[i]).length;
         const SB = bottomGroup.filter(student => student.responses[i] === key[i]).length;
         itemResults.push({ST, SB});
-        console.log(`Item ${i+1}: ST = ${ST}, SB = ${SB}`);
+        // console.log(`Item ${i+1}: ST = ${ST}, SB = ${SB}`);
     }
     return itemResults;
 }
