@@ -17,32 +17,51 @@ function getDataFromManualInput() {
         include,
         studentData: document.getElementById('manualDataInput').value
             .split('\n')
+            .map(line => line.replace(/\r$/, ''))   // handle Windows line endings
+            .filter(line => line.length > 0)         // drop blank lines
             .slice(0, numberOfStudents)
     };
 }
 
 function processDataFromManualInput() {
     const inputData = getDataFromManualInput();
+
+    if (isNaN(inputData.numberOfItems) || inputData.numberOfItems < 1) {
+        showNotification('Enter the number of test items to configure the answer key.', 'danger');
+        return;
+    }
+    if (isNaN(inputData.numberOfStudents) || inputData.numberOfStudents < 1) {
+        showNotification('Enter the number of students.', 'danger');
+        return;
+    }
+    if (!inputData.studentData.length) {
+        showNotification('Enter student response data in the Student Response Data section.', 'danger');
+        return;
+    }
     if (!validateInputs(inputData.key, inputData.options, inputData.include, inputData.numberOfItems)) {
         showNotification(
-            `Key, Options, and Include lengths must each equal the number of Test Items (${inputData.numberOfItems}). ` +
-            'Fill in the Items Configuration table above.',
+            `Answer key must have exactly ${inputData.numberOfItems} character(s). ` +
+            'Complete the Answer Key String in the Items Configuration section.',
             'danger'
         );
         return;
     }
-    const { totalPossibleScore } = processData(
-        inputData.offset, inputData.key, inputData.options, inputData.include, inputData.studentData
-    );
-    showResults(inputData.title, inputData.comments, totalPossibleScore);
+    try {
+        const { totalPossibleScore } = processData(
+            inputData.offset, inputData.key, inputData.options, inputData.include, inputData.studentData
+        );
+        showResults(inputData.title, inputData.comments, totalPossibleScore);
+    } catch (err) {
+        showNotification(`Analysis failed: ${err.message}`, 'danger');
+    }
 }
 
 function saveDataFromManualInput() {
     const inputData = getDataFromManualInput();
     if (!validateInputs(inputData.key, inputData.options, inputData.include, inputData.numberOfItems)) {
         showNotification(
-            `Key, Options, and Include lengths must each equal the number of Test Items (${inputData.numberOfItems}). ` +
-            'Fill in the Items Configuration table above.',
+            `Answer key must have exactly ${inputData.numberOfItems} character(s). ` +
+            'Complete the Answer Key String in the Items Configuration section.',
             'danger'
         );
         return;

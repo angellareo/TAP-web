@@ -1,8 +1,8 @@
 /**
  * itemGrid.js
  * Manages the Items Configuration section:
- *   - A single key-string input (e.g. "ACBAABAABC") that populates all rows at once.
- *   - A per-item table for # options and Include toggles.
+ *   - A single key-string input (e.g. "ACBAABAABC") that populates all columns at once.
+ *   - A transposed table where each column is one item, with rows: Key / # Options / Include.
  */
 
 function initItemGrid() {
@@ -22,88 +22,84 @@ function initItemGrid() {
     if (!isNaN(initial) && initial > 0) renderItemGrid(initial);
 }
 
-/**
- * Sync the key-string input → individual key cells, or the reverse.
- * direction: 'string-to-cells' | 'cells-to-string'
- */
-function syncKey(direction) {
-    const keyStringInput = document.getElementById('keyStringInput');
-    const keyCells = document.querySelectorAll('#itemGridBody .item-key');
-    if (!keyStringInput || !keyCells.length) return;
-
-    if (direction === 'string-to-cells') {
-        const chars = keyStringInput.value.toUpperCase().split('');
-        keyCells.forEach((cell, i) => {
-            cell.value = chars[i] !== undefined ? chars[i] : '';
-        });
-    } else {
-        keyStringInput.value = Array.from(keyCells).map(c => c.value || '').join('');
-    }
-}
-
 function renderItemGrid(numItems) {
     const container = document.getElementById('itemGridContainer');
     if (!container) return;
 
     // Preserve existing config if re-rendering (e.g. items count changed)
-    const existingRows = document.querySelectorAll('#itemGridBody tr');
-    const prevOptions = [], prevInclude = [];
-    existingRows.forEach(row => {
-        prevOptions.push(row.querySelector('.item-options')?.value || '4');
-        prevInclude.push(row.querySelector('.item-include')?.checked ?? true);
-    });
+    const prevOptions = Array.from(container.querySelectorAll('.item-options')).map(s => s.value || '4');
+    const prevInclude = Array.from(container.querySelectorAll('.item-include')).map(c => c.checked);
+    const prevKeyStr  = document.getElementById('keyStringInput')?.value || '';
 
-    let rows = '';
-    for (let i = 0; i < numItems; i++) {
-        const opts = prevOptions[i] || '4';
-        const inc  = prevInclude[i] !== undefined ? prevInclude[i] : true;
-        rows += `
-            <tr>
-                <td class="text-muted align-middle text-center small">${i + 1}</td>
-                <td class="align-middle font-monospace text-center item-key-display">—</td>
-                <td>
-                    <select class="form-select form-select-sm item-options" style="width:5rem;"
-                        aria-label="Number of options for item ${i + 1}">
-                        <option value="2" ${opts==='2'?'selected':''}>2</option>
-                        <option value="3" ${opts==='3'?'selected':''}>3</option>
-                        <option value="4" ${opts==='4'?'selected':''}>4</option>
-                        <option value="5" ${opts==='5'?'selected':''}>5</option>
-                    </select>
-                </td>
-                <td class="text-center align-middle">
-                    <input type="checkbox" class="form-check-input item-include" ${inc?'checked':''}
-                        aria-label="Include item ${i + 1} in analysis">
-                </td>
-            </tr>`;
-    }
+    const indices = Array.from({ length: numItems }, (_, i) => i);
+
+    const headerCells = indices.map(i =>
+        `<th class="text-center small px-2" scope="col">${i + 1}</th>`
+    ).join('');
+
+    const keyCells = indices.map(() =>
+        `<td class="text-center font-monospace item-key-display align-middle py-1">—</td>`
+    ).join('');
+
+    const optsCells = indices.map(i => {
+        const v = prevOptions[i] || '4';
+        return `<td class="px-1 py-1">
+            <select class="form-select form-select-sm item-options" aria-label="Options item ${i + 1}" style="min-width:3.5rem;">
+                ${['2','3','4','5'].map(n => `<option value="${n}"${v === n ? ' selected' : ''}>${n}</option>`).join('')}
+            </select>
+        </td>`;
+    }).join('');
+
+    const includeCells = indices.map(i => {
+        const inc = prevInclude[i] !== undefined ? prevInclude[i] : true;
+        return `<td class="text-center align-middle py-1">
+            <input type="checkbox" class="form-check-input item-include"${inc ? ' checked' : ''}
+                aria-label="Include item ${i + 1}">
+        </td>`;
+    }).join('');
+
+    const safeKeyStr = prevKeyStr.replace(/"/g, '&quot;');
 
     container.innerHTML = `
         <div class="mb-2">
             <label for="keyStringInput" class="form-label small fw-semibold mb-1">
                 Answer Key String
-                <span class="text-muted fw-normal">(paste or type the full answer key, e.g. <code>ACBAABAABC</code>)</span>
+                <span class="text-muted fw-normal">(type or paste the full answer key, e.g. <code>ACBAABAABC</code>)</span>
             </label>
             <input type="text" id="keyStringInput" class="form-control font-monospace"
+                value="${safeKeyStr}"
                 placeholder="e.g. ACBAABAABC"
                 autocomplete="off" spellcheck="false"
                 aria-label="Full answer key string">
         </div>
-        <div class="table-responsive" style="max-height:220px;overflow-y:auto;">
+        <div class="table-responsive">
             <table class="table table-sm table-bordered item-grid-table mb-0">
-                <thead class="table-light sticky-top">
+                <thead class="table-light">
                     <tr>
-                        <th style="width:3rem;">#</th>
-                        <th style="width:5rem;">Key</th>
-                        <th># Options</th>
-                        <th>Include</th>
+                        <th scope="col" style="min-width:6rem;"></th>
+                        ${headerCells}
                     </tr>
                 </thead>
-                <tbody id="itemGridBody">${rows}</tbody>
+                <tbody>
+                    <tr>
+                        <th scope="row" class="align-middle text-nowrap small fw-semibold text-muted">Key</th>
+                        ${keyCells}
+                    </tr>
+                    <tr>
+                        <th scope="row" class="align-middle text-nowrap small fw-semibold text-muted"># Options</th>
+                        ${optsCells}
+                    </tr>
+                    <tr>
+                        <th scope="row" class="align-middle text-nowrap small fw-semibold text-muted">Include</th>
+                        ${includeCells}
+                    </tr>
+                </tbody>
             </table>
         </div>`;
 
-    // Wire the key-string input → cell display
+    // Wire key-string input → column display cells
     const keyStringInput = document.getElementById('keyStringInput');
+    if (prevKeyStr) updateKeyDisplayCells(prevKeyStr.toUpperCase());
     keyStringInput.addEventListener('input', () => {
         updateKeyDisplayCells(keyStringInput.value.toUpperCase());
     });
@@ -111,7 +107,7 @@ function renderItemGrid(numItems) {
 
 /** Update the read-only key display cells from the string input */
 function updateKeyDisplayCells(str) {
-    const cells = document.querySelectorAll('#itemGridBody .item-key-display');
+    const cells = document.querySelectorAll('#itemGridContainer .item-key-display');
     cells.forEach((cell, i) => {
         cell.textContent = str[i] !== undefined && str[i].trim() !== '' ? str[i] : '—';
     });
@@ -126,18 +122,19 @@ function clearItemGrid() {
 
 /**
  * Returns { key, options, include } strings from the current grid state.
- * key is taken from the keyStringInput, trimmed to numItems chars.
+ * key is taken from the keyStringInput, padded to numItems with '?' if shorter.
  */
 function getItemGridValues() {
-    const rows    = document.querySelectorAll('#itemGridBody tr');
-    const keyStr  = (document.getElementById('keyStringInput')?.value || '').toUpperCase();
-    let options = '', include = '';
-    rows.forEach((row, i) => {
-        options += row.querySelector('.item-options').value || '4';
-        include += row.querySelector('.item-include').checked ? 'Y' : 'N';
-    });
-    // key: use keyStringInput, padded/trimmed to match row count
-    const key = Array.from(rows).map((_, i) => keyStr[i] || '1').join('');
+    const container      = document.getElementById('itemGridContainer');
+    const keyStr         = (document.getElementById('keyStringInput')?.value || '').toUpperCase();
+    const optSelects     = container ? Array.from(container.querySelectorAll('.item-options'))    : [];
+    const incCheckboxes  = container ? Array.from(container.querySelectorAll('.item-include'))   : [];
+    const numItems       = optSelects.length;
+
+    const key     = Array.from({ length: numItems }, (_, i) => keyStr[i] || '?').join('');
+    const options = optSelects.map(s => s.value || '4').join('');
+    const include = incCheckboxes.map(c => c.checked ? 'Y' : 'N').join('');
+
     return { key, options, include };
 }
 

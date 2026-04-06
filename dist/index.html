@@ -10,10 +10,15 @@
 </head>
 <body>
     <div class="main-menu">
-        <div class="options-container operation-selection">
+        <div class="options-container">
             <h1>TAP-web</h1>
-            <button class="btn btn-primary btn-lg" id="editDataButton">Edit Data</button>
-            <button class="btn btn-secondary btn-lg" id="loadDataButton">Load File</button>
+            <button class="btn btn-primary btn-lg main-action-btn" id="editDataButton">Edit Data</button>
+            <button class="btn btn-secondary btn-lg main-action-btn" id="loadDataButton">Load File</button>
+            <div class="generate-divider">
+                <button class="btn btn-link btn-sm text-muted" id="generateSampleDataButton">
+                    <i class="fas fa-random me-1"></i>Generate Sample Data
+                </button>
+            </div>
         </div>
         <div class="info-container fade-in-text" id="infoContainer">
             <ul>
@@ -30,80 +35,120 @@
             
         </div>
     </div>
+    <!-- ========== EDIT DATA ========== -->
     <div class="container hidden" id="editDataContainer">
-        <button class="btn btn-light back-button" id="backButton2">Back</button>
-        <div class="content">
-            <div class="form-container">
-                <form>
-                    <div class="mb-3">
-                        <label for="title">Title</label>
-                        <input type="text" class="form-control" id="title" placeholder="Enter title">
-                    </div>
-                    <div class="mb-3">
-                        <label for="comments">Comments</label>
-                        <input type="text" class="form-control" id="comments" placeholder="Enter comments">
-                    </div>
+        <div class="page-header">
+            <button class="btn btn-light back-button" id="backButton2">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </button>
+            <h2 class="page-title">Edit Data</h2>
+            <button class="btn btn-outline-secondary btn-sm" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#helpOffcanvas" aria-controls="helpOffcanvas">
+                <i class="fas fa-question-circle me-1"></i>Help
+            </button>
+        </div>
+
+        <form class="edit-data-form">
+            <!-- Card: Metadata -->
+            <div class="card edit-card">
+                <div class="card-header edit-card-header">Test Information</div>
+                <div class="card-body">
                     <div class="row g-3">
-                        <div class="mb-3 col-md-4">
-                            <label for="students"># Students</label>
-                            <input type="number" class="form-control" id="students" placeholder="25">
+                        <div class="col-md-6">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" placeholder="Enter title">
                         </div>
-                        <div class="mb-3 col-md-4">
-                            <label for="items"># Test Items</label>
-                            <input type="number" class="form-control" id="items" placeholder="30">
-                        </div>
-                        <div class="mb-3 col-md-4">
-                            <label for="offset"># Offset</label>
-                            <input type="number" class="form-control" id="offset" placeholder="1">
+                        <div class="col-md-6">
+                            <label for="comments" class="form-label">Comments</label>
+                            <input type="text" class="form-control" id="comments" placeholder="Optional comments">
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="key">Key</label>
-                        <div class="input-wrapper">
-                            <input type="text" class="form-control form-counter" id="key" placeholder="Enter key: ABACC..." oninput="updateCounter('key', 'charCounterKey')">
-                            <span class="char-counter" id="charCounterKey">0</span>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-4">
+                            <label for="students" class="form-label"># Students</label>
+                            <input type="number" class="form-control" id="students" placeholder="e.g. 25" min="1">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="items" class="form-label"># Test Items</label>
+                            <input type="number" class="form-control" id="items" placeholder="e.g. 10" min="1">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="offset" class="form-label">
+                                Offset
+                                <span class="text-muted small">(chars to skip per row)</span>
+                            </label>
+                            <input type="number" class="form-control" id="offset" placeholder="0" min="0" value="0">
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="options">Options</label>
-                        <div class="input-wrapper">
-                            <input type="text" class="form-control form-counter" id="options" placeholder="Enter options: 3333..." oninput="updateCounter('options', 'charCounterOptions')">
-                            <span class="char-counter" id="charCounterOptions">0</span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="include">Include</label>
-                        <div class="input-wrapper">
-                            <input type="text" class="form-control form-counter" id="include" placeholder="Enter include Y/N: YYYNY..." oninput="updateCounter('include', 'charCounterInclude')">
-                            <span class="char-counter" id="charCounterInclude">0</span>
-                        </div>
-                    </div>
-                    <div class="mb-3 text-center input-wrapper">
-                        <textarea id="manualDataInput" class="form-control form-counter" rows="10" cols="60" placeholder="Enter data manually here..."></textarea>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <button id="helpButton" class="btn" type="button">Help</button>
-                        <div>
-                            <button id="saveDataButton" class="btn me-2" type="button">Save Data</button>
-                            <button id="processManualDataButton" class="btn btn-primary" type="button">Process Data</button>
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
-            
-            <div class="tutorial-container hidden" id="tutorialContainer">
-                <h2>Tutorial</h2>
-                <p># Students: Should match the number of rows</p>
-                <p>Offset: Number of characters to omit at the beginning of each row.</p>
-                <p>TODO:</p>
-                <ul>
-                    <li>- Score Frequency Table </li>
-                    <li>- Item and Test Analysis: # mark potential problems.</li>
-                    <li>- Spearman-Brown Prophecy (in Analysis)</li>
-                </ul>
-                <p id="result" class="result-animation"></p>
-                <a id="downloadLink" style="display: none;" class="btn btn-success btn-lg mt-3">Download Result</a>
+
+            <!-- Card: Items Configuration -->
+            <div class="card edit-card">
+                <div class="card-header edit-card-header">Items Configuration</div>
+                <div class="card-body">
+                    <div id="itemGridContainer">
+                        <p class="text-muted small mb-0">Set the number of test items above to configure each item.</p>
+                    </div>
+                </div>
             </div>
+
+            <!-- Card: Student Response Data -->
+            <div class="card edit-card">
+                <div class="card-header edit-card-header">Student Response Data</div>
+                <div class="card-body">
+                    <textarea id="manualDataInput" class="form-control font-monospace" rows="10"
+                        placeholder="Paste student responses here — one row per student, aligned to the key above."></textarea>
+                    <div id="validationGridContainer" class="mt-2"></div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="edit-actions">
+                <button id="saveDataButton" class="btn btn-outline-secondary" type="button">
+                    <i class="fas fa-download me-1"></i>Save .tap file
+                </button>
+                <button id="processManualDataButton" class="btn btn-primary" type="button">
+                    <i class="fas fa-play me-1"></i>Analyse
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ========== HELP OFFCANVAS ========== -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="helpOffcanvas" aria-labelledby="helpOffcanvasLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title" id="helpOffcanvasLabel">
+                <i class="fas fa-question-circle me-2 text-primary"></i>How to enter data
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body small">
+            <h6 class="fw-bold">Test Information</h6>
+            <ul>
+                <li><strong># Students</strong> — total number of examinees; must match the rows you paste below.</li>
+                <li><strong># Test Items</strong> — number of questions on the test.</li>
+                <li><strong>Offset</strong> — characters to skip at the start of each row (e.g. a student ID of length 5 → offset 5). Leave 0 if responses start at column 1.</li>
+            </ul>
+            <h6 class="fw-bold">Items Configuration</h6>
+            <ul>
+                <li><strong>Answer Key String</strong> — type or paste the full string of correct answers (e.g. <code>ACBAABAABC</code>). The table below will reflect each character.</li>
+                <li><strong># Options</strong> — number of answer choices for each item (2–5).</li>
+                <li><strong>Include</strong> — uncheck to exclude an item from analysis (e.g. a faulty question).</li>
+            </ul>
+            <h6 class="fw-bold">Student Response Data</h6>
+            <ul>
+                <li>Paste one row per student. Each character should correspond to the option chosen (e.g. <code>A</code>, <code>B</code>, or a digit like <code>1</code>, <code>2</code>).</li>
+                <li>Characters must use the <strong>same coding</strong> as the answer key.</li>
+                <li>Rows are colour-coded below the text area: <span class="badge bg-success">green</span> = correct length, <span class="badge bg-danger">red</span> = wrong length.</li>
+            </ul>
+            <h6 class="fw-bold">Actions</h6>
+            <ul>
+                <li><strong>Save .tap file</strong> — download the current data as a reusable <code>.tap</code> file you can load next time.</li>
+                <li><strong>Analyse</strong> — run the full test analysis and view results.</li>
+            </ul>
+            <hr>
+            <p class="text-muted">Based on <a href="https://people.ohio.edu/brooksg/#TAP:_Test_Analysis_Program" target="_blank">TAP: Test Analysis Program</a> by Gordon P. Brooks.</p>
         </div>
     </div>
     <div class="container hidden" id="resultsContainer">
@@ -114,13 +159,14 @@
     </div>
     <footer class="footer mt-auto py-3 bg-secondary text-light">
         <div class="container text-center">
-            <span> Made with ❤️ by <a href="https://angellareo.github.io/" target="_blank" class="link-body-emphasis">Angel Lareo</a> | </span> 
+            <span> Made with ❤️ by <a href="https://github.com/angellareo" target="_blank" class="link-body-emphasis">Angel Lareo</a> | </span> 
             <a href="https://github.com/angellareo" class="link-light"><i class="fab fa-github"></i></a>
             <a href="https://mastodon.social/@alareo" class="link-light"><i class="fab fa-mastodon"></i></a>
             <a href="https://scholar.google.com/citations?user=zzaFkkoAAAAJ&hl=es" class="link-light"><i class="fab fa-google-scholar"></i></a>
             <span> | Licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" class="link-body-emphasis">GPL</a></span>
         </div>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmE4nSFE5KMxcZ8kl/V1e26MTTS" crossorigin="anonymous"></script>
     <script src="bundle.js"></script>
 </body>
 </html>
