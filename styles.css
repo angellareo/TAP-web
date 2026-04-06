@@ -1,10 +1,13 @@
 /* Make sure the entire viewport is used */
-body, html {
+html, body {
     height: 100%;
     margin: 0;
+}
+
+body {
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* No scroll */
+    overflow: hidden;
 }
 
 /* Main container that takes up available space */
@@ -14,52 +17,75 @@ body, html {
     justify-content: center;
     align-items: center;
     width: 100%;
-    gap: 20px; /* Add separation between columns */
-    flex-wrap: wrap; /* Allow wrapping for responsive design */
-}
-
-/* Two-column layout */
-.content {
-    display: flex;
-    width: 80%;
-    max-width: 1200px;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Left: Form */
-.form-container {
-    width: 65%;
-    max-width: 800px;
+    gap: 20px;
+    flex-wrap: wrap;
     padding: 20px;
-    border: 3px solid #007bff; /* Blue border */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 0 10px rgba(0, 0, 255, 0.2); /* Optional: Add shadow for better visibility */
+    overflow-y: auto;
+    align-content: flex-start;
 }
 
-.tutorial-container {
-    width: 35%;
-    max-width: 300px;
-    margin: 20px 0 0 20px;
+/* Edit Data page layout */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto 16px;
+    padding: 0 4px;
 }
 
-.info-container {
-    text-align: left;
-    max-width: 600px;
-    margin: 20px;
+.page-header .back-button {
+    position: static; /* override the absolute positioning used elsewhere */
 }
 
-/* Responsive design */
-@media (max-width: 900px) {
-    .content {
-        flex-direction: column;
-        align-items: center;
-    }
+.page-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+}
 
-    .form-container, .tutorial-container {
-        width: 100%;
-        max-width: none;
-    }
+.edit-data-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+}
+
+.edit-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.edit-card-header {
+    background: #f8f9fa;
+    font-weight: 600;
+    font-size: .9rem;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: #6c757d;
+    padding: 10px 16px;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 8px 8px 0 0;
+}
+
+.edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-bottom: 8px;
+}
+
+/* Results container: column layout, full width */
+#resultsContainer {
+    flex-direction: column;
+    align-items: stretch;
+    align-content: flex-start;
+    padding-top: 20px;
 }
 
 /* Input field wrapper */
@@ -83,6 +109,24 @@ body, html {
     padding-right: 40px; /* Space for counter */
 }
 
+/* Loading overlay */
+#loadingOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.88);
+    /* display is controlled via inline style in loading.js to avoid specificity conflicts */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
 /* Footer fixed at bottom */
 footer {
     flex-shrink: 0;
@@ -94,14 +138,16 @@ footer {
 /* Main menu styling */
 .main-menu {
     display: flex;
+    flex: 1;
     justify-content: center;
     align-items: center;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 20px;
-    height: 100vh;
     background: white;
     color: black;
     text-align: center;
+    overflow-y: auto;
 }
 
 .main-menu h1 {
@@ -116,18 +162,24 @@ footer {
     gap: 10px;
 }
 
-.options-container button {
+/* Main action buttons */
+.options-container .main-action-btn {
     width: 250px;
     padding: 15px;
     font-size: 1.2rem;
-    border: none;
     border-radius: 5px;
-    transition: transform 0.3s, background-color 0.3s;
+    transition: transform 0.3s;
 }
 
-.options-container button:hover {
+.options-container .main-action-btn:hover {
     transform: scale(1.05);
-    background-color: #0056b3;
+}
+
+/* Contextual divider before the generate button */
+.options-container .generate-divider {
+    border-top: 1px solid #dee2e6;
+    padding-top: 6px;
+    margin-top: 4px;
 }
 
 .info-container {
@@ -229,16 +281,69 @@ footer {
 /* Results content styling */
 .results-content {
     padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f9f9f9;
     width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
+    overflow-x: auto;
 }
 
 /* Button styling for results menu */
 .results-menu .btn {
     flex: 1;
     max-width: 200px;
+}
+
+/* Validation grid */
+.validation-grid {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px;
+    background: #f8f9fa;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.vg-ruler {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+.vg-row {
+    display: flex;
+    align-items: center;
+    line-height: 1.6;
+}
+
+.vg-row-ok  { background-color: #d1fae5; }
+.vg-row-err { background-color: #fee2e2; }
+
+.vg-linenum {
+    display: inline-block;
+    min-width: 2rem;
+    text-align: right;
+    padding-right: 8px;
+    border-right: 1px solid #dee2e6;
+    margin-right: 8px;
+    color: #9ca3af;
+}
+
+.vg-offset { color: #9ca3af; }
+.vg-item   { color: #1f2937; }
+
+.vg-col {
+    display: inline-block;
+    width: 0.6rem;
+    text-align: center;
+}
+
+.vg-error-msg {
+    margin-left: 8px;
+    font-style: italic;
+    white-space: nowrap;
+}
+
+/* Item grid table */
+.item-grid-table th,
+.item-grid-table td {
+    vertical-align: middle;
+    padding: 4px 8px;
 }
