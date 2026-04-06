@@ -1,27 +1,23 @@
+/**
+ * counters.js
+ * Character-counter helpers for text inputs that display a live character count.
+ * The key/options/include inputs were replaced by the itemGrid; this module is
+ * kept for any future counter-enabled inputs.
+ */
+
 function updateCounter(inputId, counterId) {
-    let input = document.getElementById(inputId);
-    let counter = document.getElementById(counterId);
-    counter.textContent = input.value.length;
+    const input   = document.getElementById(inputId);
+    const counter = document.getElementById(counterId);
+    if (input && counter) counter.textContent = input.value.length;
 }
 
+// eslint-disable-next-line no-unused-vars
 function initializeEventListeners() {
-    const keyInput = document.getElementById('key');
-    if (keyInput) {
-        keyInput.addEventListener('input', () => updateCounter('key', 'charCounterKey'));
-    }
-
-    const optionsInput = document.getElementById('options');
-    if (optionsInput) {
-        optionsInput.addEventListener('input', () => updateCounter('options', 'charCounterOptions'));
-    }
-
-    const includeInput = document.getElementById('include');
-    if (includeInput) {
-        includeInput.addEventListener('input', () => updateCounter('include', 'charCounterInclude'));
-    }
+    // No counter-enabled inputs currently active.
+    // Add listeners here when new inputs with char counters are introduced.
 }
 
 export {
-    updateCounter, 
+    updateCounter,
     initializeEventListeners
 };
