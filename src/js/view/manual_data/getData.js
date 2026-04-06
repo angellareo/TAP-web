@@ -1,45 +1,69 @@
-import { processData, validateInputs, calculateQuickTestItemResults } from '../../controller/dataProcessors.js';
+import { processData, validateInputs } from '../../controller/dataProcessors.js';
 import { showResults } from '../results/results.js';
+import { getItemGridValues } from './itemGrid.js';
 
-function getDataFromManualInput(data) {
-    const inputData = {
+function getDataFromManualInput() {
+    const { key, options, include } = getItemGridValues();
+    const numberOfStudents = parseInt(document.getElementById('students').value);
+    return {
         title: document.getElementById('title').value,
         comments: document.getElementById('comments').value,
-        numberOfStudents: parseInt(document.getElementById('students').value),
+        numberOfStudents,
         numberOfItems: parseInt(document.getElementById('items').value),
-        offset: parseInt(document.getElementById('offset').value),
-        key: document.getElementById('key').value,
-        options: document.getElementById('options').value,
-        include: document.getElementById('include').value,
-        studentData: document.getElementById('manualDataInput').value.split('\n').slice(0, parseInt(document.getElementById('students').value))
+        offset: parseInt(document.getElementById('offset').value) || 0,
+        key,
+        options,
+        include,
+        studentData: document.getElementById('manualDataInput').value
+            .split('\n')
+            .slice(0, numberOfStudents)
     };
-    return inputData;
 }
 
-function processDataFromManualInput(data) {
-    const inputData = getDataFromManualInput(data);
-    if (validateInputs (inputData.key, inputData.options, inputData.include, inputData.numberOfItems)){
-        const { totalPossibleScore, scores} = processData(inputData.offset, inputData.key,  inputData.options, inputData.include, inputData.studentData);
-        showResults(inputData.title, inputData.comments, inputData.result, totalPossibleScore);
+function processDataFromManualInput() {
+    const inputData = getDataFromManualInput();
+    if (validateInputs(inputData.key, inputData.options, inputData.include, inputData.numberOfItems)) {
+        const { totalPossibleScore } = processData(
+            inputData.offset, inputData.key, inputData.options, inputData.include, inputData.studentData
+        );
+        showResults(inputData.title, inputData.comments, totalPossibleScore);
     }
 }
 
-function saveDataFromManualInput(data) {
-    const inputData = getDataFromManualInput(data);
-    if (validateInputs (key, options, include, numberOfItems)){
-        // Print to console for now; later, implement saving to file
-        console.log("Saving Data:");
-        console.log("Title:", title);
-        console.log("Comments:", comments);
-        console.log("Number of Students:", numberOfStudents);
-        console.log("Number of Items:", numberOfItems);
-        console.log("Offset:", offset);
-        console.log("Key:", key);
-        console.log("Options:", options);
-        console.log("Include:", include);
-        console.log("Student Data:", studentData);
-        alert("Data saved to console (for now).");
+function saveDataFromManualInput() {
+    const inputData = getDataFromManualInput();
+    if (validateInputs(inputData.key, inputData.options, inputData.include, inputData.numberOfItems)) {
+        const content = buildTapFileContent(inputData);
+        const filename = (inputData.title || 'test-data').replace(/[^a-z0-9]/gi, '-') + '.tap';
+        triggerDownload(content, filename);
     }
+}
+
+function buildTapFileContent({ title, comments, numberOfStudents, numberOfItems, offset, key, options, include, studentData }) {
+    return [
+        `title: ${title}`,
+        `comments: ${comments}`,
+        `nstudents: ${numberOfStudents}`,
+        `nitems: ${numberOfItems}`,
+        `noffset: ${offset}`,
+        `key: ${key}`,
+        `options: ${options}`,
+        `include: ${include}`,
+        'data:',
+        ...studentData
+    ].join('\n');
+}
+
+function triggerDownload(content, filename) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 export {

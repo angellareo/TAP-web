@@ -66,16 +66,14 @@ export function initializeEventListeners() {
     }
 
     if (saveDataButton) {
-        saveDataButton.addEventListener('click', (event) => {
-            const manualData = document.getElementById('manualDataInput').value;
-            saveDataFromManualInput(manualData);
+        saveDataButton.addEventListener('click', () => {
+            saveDataFromManualInput();
         });
     }
 
     if (processManualDataButton) {
-        processManualDataButton.addEventListener('click', (event) => {
-            const manualData = document.getElementById('manualDataInput').value;
-            processDataFromManualInput(manualData);
+        processManualDataButton.addEventListener('click', () => {
+            processDataFromManualInput();
         });
     }
 
