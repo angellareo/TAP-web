@@ -24,48 +24,68 @@ body {
     align-content: flex-start;
 }
 
-/* Two-column layout */
-.content {
+/* Edit Data page layout */
+.page-header {
     display: flex;
-    width: 80%;
-    max-width: 1200px;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto 16px;
+    padding: 0 4px;
 }
 
-/* Left: Form */
-.form-container {
-    width: 65%;
-    max-width: 800px;
-    padding: 20px;
-    border: 3px solid #007bff; /* Blue border */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 0 10px rgba(0, 0, 255, 0.2); /* Optional: Add shadow for better visibility */
+.page-header .back-button {
+    position: static; /* override the absolute positioning used elsewhere */
 }
 
-.tutorial-container {
-    width: 35%;
-    max-width: 300px;
-    margin: 20px 0 0 20px;
+.page-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
 }
 
-.info-container {
-    text-align: left;
-    max-width: 600px;
-    margin: 20px;
+.edit-data-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding-bottom: 32px;
 }
 
-/* Responsive design */
-@media (max-width: 900px) {
-    .content {
-        flex-direction: column;
-        align-items: center;
-    }
+.edit-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
 
-    .form-container, .tutorial-container {
-        width: 100%;
-        max-width: none;
-    }
+.edit-card-header {
+    background: #f8f9fa;
+    font-weight: 600;
+    font-size: .9rem;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: #6c757d;
+    padding: 10px 16px;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 8px 8px 0 0;
+}
+
+.edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-bottom: 8px;
+}
+
+/* Results container: column layout, full width */
+#resultsContainer {
+    flex-direction: column;
+    align-items: stretch;
+    align-content: flex-start;
+    padding-top: 20px;
 }
 
 /* Input field wrapper */

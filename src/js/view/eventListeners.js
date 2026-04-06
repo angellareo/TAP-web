@@ -48,8 +48,6 @@ export function initializeEventListeners() {
     // EDIT DATA screen
     const backButton2 = document.getElementById('backButton2');
     const editDataContainer = document.getElementById('editDataContainer');
-    const tutorialContainer = document.getElementById('tutorialContainer');
-    const helpButton = document.getElementById('helpButton');
     const saveDataButton = document.getElementById('saveDataButton');
     const processManualDataButton = document.getElementById('processManualDataButton');
 
@@ -57,19 +55,6 @@ export function initializeEventListeners() {
         backButton2.addEventListener('click', () => {
             editDataContainer.classList.add('hidden');
             mainMenu.classList.remove('hidden');
-        });
-    }
-
-    if (helpButton) {
-        helpButton.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent form submission, although type="button" in HTML should do it
-
-            if (tutorialContainer.classList.contains('hidden')) {
-                tutorialContainer.classList.remove('hidden');
-            }
-            else {
-                tutorialContainer.classList.add('hidden');
-            }
         });
     }
 
