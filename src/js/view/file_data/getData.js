@@ -1,6 +1,7 @@
 import { processData, getDataFromFile } from '../../controller/dataProcessors.js';
 import { showResults } from '../results/results.js';
 import { showNotification } from '../notifications.js';
+import { withLoading } from '../loading.js';
 
 function handleFileSelect(fileInput) {
     const file = fileInput.files[0];
@@ -27,12 +28,14 @@ function handleDataLoad(data) {
         return;
     }
     const { title, comments, offset, key, options, include, studentData } = result;
-    try {
-        const { totalPossibleScore } = processData(offset, key, options, include, studentData);
-        showResults(title, comments, totalPossibleScore);
-    } catch (err) {
-        showNotification(`Analysis failed: ${err.message}`, 'danger');
-    }
+    withLoading(() => {
+        try {
+            const { totalPossibleScore } = processData(offset, key, options, include, studentData);
+            showResults(title, comments, totalPossibleScore);
+        } catch (err) {
+            showNotification(`Analysis failed: ${err.message}`, 'danger');
+        }
+    });
 }
 
 export { 

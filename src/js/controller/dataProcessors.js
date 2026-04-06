@@ -1,476 +1,200 @@
-const math = require('mathjs');
-
-// ─── Format detection ───────────────────────────────────────────────────────
-
 /**
- * Returns true for files in the original TAP app format
- * (uses '=' as delimiter; starts with "TAP:" or contains "Answer Key =").
+ * dataProcessors.js
+ * Orchestrates the full test-analysis pipeline.
+ * Delegates pure calculations to analysisUtils.js and file parsing to fileParser.js.
+ * Writes all results to sessionStorage for consumption by the results view.
  */
-function isTapFormat(data) {
-    return data.trimStart().startsWith('TAP:') || /Answer Key\s*=/i.test(data);
-}
 
-// ─── Old TAP app format parser (.tap) ────────────────────────────────────────
+const math   = require('mathjs');
+const utils  = require('./analysisUtils.js');
+const parser = require('./fileParser.js');
 
-/**
- * Parse a file in the original TAP app format.
- * Header lines use  Key = value  syntax.
- * Lines without '=' are student response rows.
- * Footer lines (# Grades, #Alternatives …) also use '=' and are absorbed into
- * the header map but are not used.
- */
-function getDataFromTapFile(data) {
-    const lines = data.split('\n');
-    const header = {};
-    const studentRows = [];
+// ─── Re-export sub-module functions (backward-compatible public API) ──────────
+const { getDataFromFile, getDataFromTapFile, getDataFromDatFile }            = parser;
+const { calculateScore, getScores, calculateTotalPossibleScore }             = utils;
+const { calculateSkewness, calculateKurtosis }                               = utils;
+const { calculateMeanItemDifficulty, calculateMeanDiscriminationIndex }      = utils;
+const { calculateMeanPointBiserial, calculateMeanAdjPointBiserial }          = utils;
 
-    for (const rawLine of lines) {
-        const line = rawLine.trim();
-        if (!line || line.startsWith('TAP:')) continue;
-        const eqIdx = line.indexOf('=');
-        if (eqIdx > 0) {
-            header[line.substring(0, eqIdx).trim().toLowerCase()] = line.substring(eqIdx + 1).trim();
-        } else {
-            studentRows.push(line);  // response row (no '=' → not a header)
-        }
-    }
-
-    const title          = header['title']          || '';
-    const comments       = header['comments']        || '';
-    const numberOfItems  = parseInt(header['# items']);
-    const offset         = parseInt(header['label length']) || 0;
-    const key            = header['answer key']      || '';
-    const options        = header['# options']       || '';
-    const include        = header['item analyzed']   || '';
-    const numberOfStudents = parseInt(header['# examinees']) || studentRows.length;
-
-    if (!numberOfItems || !key) return null;
-
-    const studentData = studentRows.slice(0, numberOfStudents);
-    if (studentData.length !== numberOfStudents ||
-        studentData.some(line => (line.length - offset) !== numberOfItems)) {
-        return null;
-    }
-
-    return { title, comments, offset, key, options, include, studentData };
-}
-
-// ─── Webapp format parser (.dat / .tapw) ─────────────────────────────────────
-
-/**
- * Parse a file in the webapp format (key: value headers, then "data:" line).
- * String values may be surrounded by quotes (legacy .dat files) — these are stripped.
- */
-function getDataFromDatFile(data) {
-    const lines = data.split('\n');
-    const dataObject = {};
-    let dataIndex = -1;
-
-    lines.forEach((line, index) => {
-        const colonIdx = line.indexOf(':');
-        if (colonIdx < 0) return;
-        const key   = line.substring(0, colonIdx).trim();
-        const value = line.substring(colonIdx + 1).trim().replace(/^"|"$/g, ''); // strip surrounding quotes
-        if (key === 'data') {
-            dataIndex = index + 1;
-        } else if (key) {
-            dataObject[key] = value;
-        }
-    });
-
-    const title            = dataObject.title    || '';
-    const comments         = dataObject.comments || '';
-    const numberOfStudents = parseInt(dataObject.nstudents);
-    const numberOfItems    = parseInt(dataObject.nitems);
-    const offset           = parseInt(dataObject.noffset) || 0;
-    const key              = dataObject.key;
-    const options          = dataObject.options;
-    const include          = dataObject.include;
-
-    if (dataIndex < 0 || !numberOfItems || !numberOfStudents || !key) return null;
-
-    const studentData = lines.slice(dataIndex, dataIndex + numberOfStudents)
-        .map(l => l.replace(/\r$/, ''));
-    if (studentData.length !== numberOfStudents ||
-        studentData.some(line => (line.length - offset) !== numberOfItems)) {
-        return null;
-    }
-
-    return { title, comments, offset, key, options, include, studentData };
-}
-
-// ─── Public entry point ───────────────────────────────────────────────────────
-
-/** Auto-detects format and delegates to the appropriate parser. */
-function getDataFromFile(data) {
-    return isTapFormat(data) ? getDataFromTapFile(data) : getDataFromDatFile(data);
-}
-
-function removeOffset(studentData, offset) {
-    return studentData.map(line => line.slice(offset));
-}
-
-function removeNValues(key, options, include, studentData) {
-    // function to remove N values from include from the key, options, and studentData
-    key = String(key).split('').filter((_, idx) => include[idx].toLowerCase() === 'y').join('');
-    options = String(options).split('').filter((_, idx) => include[idx].toLowerCase() === 'y').join('');
-    studentData = studentData.map(line => line.split('').filter((_, idx) => include[idx].toLowerCase() === 'y').join(''));
-    return {key, options, studentData};
-}
-
-function processData(offset, key, options, include, studentData) {
-    const noOffStudentData = removeOffset(studentData, offset);
-    const fixed = removeNValues(key, options, include, noOffStudentData);
-    const totalPossibleScore = calculateTotalPossibleScore(include);
-    const fscores = getScores(fixed.studentData, fixed.key);
-
-    // Create studentData as an object containing responses, score, and group
-    fixed.studentData = fixed.studentData.map((line, idx) => {
-        return {responses: line, score: fscores[idx], group: ''};
-    }).sort((a, b) => b.score - a.score);
-
-    // Label studentData top, middle, and bottom groups
-    const groupSize = Math.floor(fixed.studentData.length * 0.27);
-    fixed.studentData.forEach((student, idx) => {
-        if (idx < groupSize) {
-            student.group = 't';
-        } else if (idx >= groupSize && idx < fixed.studentData.length - groupSize) {
-            student.group = 'm';
-        } else {
-            student.group = 'b';
-        }
-    });
-
-    sessionStorage.setItem('key', fixed.key);
-    sessionStorage.setItem('options', fixed.options);
-    sessionStorage.setItem('studentData', JSON.stringify(fixed.studentData));
-    sessionStorage.setItem('totalPossibleScore', totalPossibleScore);
-    sessionStorage.setItem('scores', JSON.stringify(fscores));
-
-    calculateQuickExamineeResults(fscores);
-    calculateQuickTestItemResults(fixed.studentData, fixed.key, include);
-    calculateItemResults(fixed.studentData, fixed.key);
-    calculatePerItemResults(fixed.studentData, fixed.key);
-
-    return  { totalPossibleScore, fscores};
-}
+// ─── Validation ───────────────────────────────────────────────────────────────
 
 function validateInputs(key, options, include, numberOfItems) {
-    if (key.length !== numberOfItems || options.length !== numberOfItems || include.length !== numberOfItems) {
-        return false; // caller is responsible for reporting the error
-    }
-    return true;
+    return key.length === numberOfItems &&
+           options.length === numberOfItems &&
+           include.length === numberOfItems;
 }
 
-function calculateSkewness(scores, n, mean, stdDev) {
-    if (stdDev === 0) return null; // undefined when all scores are identical
-    return scores.reduce((acc, score) => acc + Math.pow(score - mean, 3), 0) / (n * Math.pow(stdDev, 3));
-}
+// ─── Main pipeline ────────────────────────────────────────────────────────────
 
-function calculateKurtosis(scores, n, mean, stdDev) {
-    if (stdDev === 0) return null; // undefined when all scores are identical
-    return scores.reduce((acc, score) => acc + Math.pow(score - mean, 4), 0) / (n * Math.pow(stdDev, 4));
-}
+function processData(offset, key, options, include, studentData) {
+    const noOffsetData       = utils.removeOffset(studentData, offset);
+    const fixed              = utils.removeNValues(key, options, include, noOffsetData);
+    const totalPossibleScore = utils.calculateTotalPossibleScore(include);
+    const fscores            = utils.getScores(fixed.studentData, fixed.key);
 
-function calculateTotalPossibleScore(include) {
-    return include.split('').filter(char => char.toLowerCase() === 'y').length;
-}
+    // Attach score + original-order index, then sort descending by score
+    fixed.studentData = fixed.studentData
+        .map((responses, idx) => ({ responses, score: fscores[idx], group: '', originalIndex: idx }))
+        .sort((a, b) => b.score - a.score);
 
-function getScores(data, key) {
-    if (!Array.isArray(data)) {
-        data = data.split('\n');
-    }
-    const scores = data.map(line => calculateScore(line, key));
-    return scores;
-}
-
-function calculateScore(line, key) {
-    let score = 0;
-    for (let i = 0; i < key.length; i++) {
-        if (line[i] === key[i]) {
-            score++;
-        }
-    }
-    return score;
-}
-
-function calculateMeanItemDifficulty(studentData, key) {
-    let totalMatches = 0;
-    let totalItems = 0;
-    studentData.forEach(student => {
-        for (let i = 0; i < key.length; i++) {
-            totalItems++;
-            if (student.responses[i] === key[i]) {
-                totalMatches++;
-            }
-        }
+    // Label top/middle/bottom 27% groups
+    const groupSize = Math.floor(fixed.studentData.length * 0.27);
+    fixed.studentData.forEach((student, idx) => {
+        if      (idx < groupSize)                                  student.group = 't';
+        else if (idx >= fixed.studentData.length - groupSize)      student.group = 'b';
+        else                                                        student.group = 'm';
     });
-    return totalMatches / totalItems;
+
+    sessionStorage.setItem('key',               fixed.key);
+    sessionStorage.setItem('options',           fixed.options);
+    sessionStorage.setItem('studentData',       JSON.stringify(fixed.studentData));
+    sessionStorage.setItem('totalPossibleScore', totalPossibleScore);
+    sessionStorage.setItem('scores',            JSON.stringify(fscores));
+
+    const examineeStats = calculateQuickExamineeResults(fscores);
+    calculateQuickTestItemResults(fixed.studentData, fixed.key, include);
+    const perItems = calculatePerItemResults(fixed.studentData, fixed.key);
+
+    const reliability = calculateReliabilityMetrics(fscores, perItems, totalPossibleScore);
+    calculateScoreDistribution(fscores, examineeStats.mean, examineeStats.stdDevPop, totalPossibleScore);
+    calculateExamineeList(fixed.studentData, totalPossibleScore, reliability.sem);
+
+    return { totalPossibleScore, fscores };
 }
 
-function calculateMeanDiscriminationIndex(studentData, key) {
-    const numItems = key.length;
-    let totalDiscriminationIndex = 0;
-
-    for (let i = 0; i < numItems; i++) {
-        const topGroup = studentData.filter(student => student.group === 't');
-        const bottomGroup = studentData.filter(student => student.group === 'b');
-        const ST = topGroup.filter(student => student.responses[i] === key[i]).length / topGroup.length;
-        const SB = bottomGroup.filter(student => student.responses[i] === key[i]).length / bottomGroup.length;
-        const discriminationIndex = ST - SB;
-        totalDiscriminationIndex += discriminationIndex;
-    }
-
-    return totalDiscriminationIndex / numItems;
-}
-
-function calculateMeanPointBiserial(studentData, key) {
-    const numItems = key.length;
-    let totalPointBiserial = 0;
-
-    // Compute total test scores for all students
-    const totalScores = studentData.map(student => student.score);
-    const meanTotalScore = totalScores.reduce((sum, score) => sum + score, 0) / studentData.length;
-    const stdDevTotalScore = Math.sqrt(
-        totalScores.reduce((sum, score) => sum + Math.pow(score - meanTotalScore, 2), 0) / studentData.length
-    );
-
-    for (let i = 0; i < numItems; i++) {
-        // Separate students into correct and incorrect responses
-        const correctGroup = studentData.filter(student => student.responses[i] === key[i]);
-        const incorrectGroup = studentData.filter(student => student.responses[i] !== key[i]);
-
-        const p = correctGroup.length / studentData.length;
-        const q = 1 - p;
-
-        if (p === 0 || q === 0) {
-            continue; // Avoid division by zero
-        }
-
-        const meanCorrect = correctGroup.reduce((sum, student) => sum + student.score, 0) / correctGroup.length;
-        const meanIncorrect = incorrectGroup.reduce((sum, student) => sum + student.score, 0) / incorrectGroup.length;
-
-        // Compute point-biserial correlation for this item
-        const pointBiserial = ((meanCorrect - meanIncorrect) / stdDevTotalScore) * Math.sqrt(p * q);
-
-        totalPointBiserial += pointBiserial;
-    }
-
-    return totalPointBiserial / numItems; // Average point-biserial
-}
-
-function calculateMeanAdjPointBiserial(studentData, key) {
-    const numItems = key.length;
-    let totalAdjPointBiserial = 0;
-
-    for (let i = 0; i < numItems; i++) {
-        // Adjusted total scores (excluding the current item)
-        const adjustedScores = studentData.map(student => {
-            const itemScore = student.responses[i] === key[i] ? 1 : 0;
-            return student.score - itemScore; // Remove item's contribution
-        });
-
-        // Compute mean and standard deviation of adjusted scores
-        const meanAdjScore = adjustedScores.reduce((sum, score) => sum + score, 0) / studentData.length;
-        const stdDevAdjScore = Math.sqrt(
-            adjustedScores.reduce((sum, score) => sum + Math.pow(score - meanAdjScore, 2), 0) / studentData.length
-        );
-
-        // Separate students into correct and incorrect groups
-        const correctGroup = studentData.filter(student => student.responses[i] === key[i]);
-        const incorrectGroup = studentData.filter(student => student.responses[i] !== key[i]);
-
-        const p = correctGroup.length / studentData.length;
-        const q = 1 - p;
-
-        if (p === 0 || q === 0 || stdDevAdjScore === 0) {
-            continue; // Avoid division by zero
-        }
-
-        // Compute mean adjusted total scores for correct/incorrect groups
-        const meanCorrectAdj = correctGroup.reduce((sum, student) => sum + (student.score - (student.responses[i] === key[i] ? 1 : 0)), 0) / correctGroup.length;
-        const meanIncorrectAdj = incorrectGroup.reduce((sum, student) => sum + (student.score - (student.responses[i] === key[i] ? 1 : 0)), 0) / incorrectGroup.length;
-
-        // Compute adjusted point-biserial correlation for this item
-        const adjPointBiserial = ((meanCorrectAdj - meanIncorrectAdj) / stdDevAdjScore) * Math.sqrt(p * q);
-
-        totalAdjPointBiserial += adjPointBiserial;
-    }
-
-    return totalAdjPointBiserial / numItems; // Average adjusted point-biserial
-}
-
+// ─── sessionStorage writers ──────────────────────────────────────────────────
 
 function calculateQuickExamineeResults(scores) {
     const numExaminees = scores.length;
-    const minScore = Math.min(...scores);
-    const maxScore = Math.max(...scores);
-    const mean = math.mean(scores);
-    const median = math.median(scores);
-    const stdDevSamp = math.std(scores);
-    const stdDevPop = math.std(scores, 'uncorrected');
-    const varSamp = math.variance(scores);
-    const varPop = math.variance(scores, 'uncorrected');
-    const skewness = calculateSkewness(scores, numExaminees, mean, stdDevPop);
-    const rawKurtosis = calculateKurtosis(scores, numExaminees, mean, stdDevPop);
-    const kurtosis = rawKurtosis !== null ? rawKurtosis - 3 : null; // -3 for excess kurtosis (compare to normal)
+    const minScore     = Math.min(...scores);
+    const maxScore     = Math.max(...scores);
+    const mean         = math.mean(scores);
+    const median       = math.median(scores);
+    const stdDevSamp   = math.std(scores);
+    const stdDevPop    = math.std(scores, 'uncorrected');
+    const varSamp      = math.variance(scores);
+    const varPop       = math.variance(scores, 'uncorrected');
+    const skewness     = utils.calculateSkewness(scores, numExaminees, mean, stdDevPop);
+    const rawKurtosis  = utils.calculateKurtosis(scores, numExaminees, mean, stdDevPop);
+    const kurtosis     = rawKurtosis !== null ? rawKurtosis - 3 : null; // excess kurtosis
 
-    sessionStorage.setItem('examineeResults', JSON.stringify({
-        numExaminees,
-        minScore,
-        maxScore,
-        mean,
-        median,
-        stdDevSamp,
-        stdDevPop,
-        varSamp,
-        varPop,
-        skewness,
-        kurtosis
-    }));
-
-    return {
-        numExaminees,
-        minScore,
-        maxScore,
-        mean,
-        median,
-        stdDevSamp,
-        stdDevPop,
-        varSamp,
-        varPop,
-        skewness,
-        kurtosis
-    };
+    const result = { numExaminees, minScore, maxScore, mean, median,
+                     stdDevSamp, stdDevPop, varSamp, varPop, skewness, kurtosis };
+    sessionStorage.setItem('examineeResults', JSON.stringify(result));
+    return result;
 }
 
 function calculateQuickTestItemResults(studentData, key, include) {
-    const numItemsExcluded = include.split('').filter(char => char.toLowerCase() === 'n').length;
-    const numItemsAnalyzed = include.split('').filter(char => char.toLowerCase() === 'y').length;
-    const meanItemDifficulty = calculateMeanItemDifficulty(studentData, key);
-    const meanDiscriminationIndex = calculateMeanDiscriminationIndex(studentData, key);
-    const meanPointBiserial = calculateMeanPointBiserial(studentData, key, include);
-    const meanAdjPointBiserial = calculateMeanAdjPointBiserial(studentData, key, include);
-
-    sessionStorage.setItem('testItemResults', JSON.stringify({
-        numItemsExcluded,
-        numItemsAnalyzed,
-        meanItemDifficulty,
-        meanDiscriminationIndex,
-        meanPointBiserial,
-        meanAdjPointBiserial
-    }));
-
-    return { numItemsExcluded, numItemsAnalyzed, meanItemDifficulty, meanDiscriminationIndex, meanPointBiserial, meanAdjPointBiserial };
-}
-
-function calculateItemResults(studentData, key){
-    // For each item calculate #corrects in top and bottom groups
-    const numItems = key.length;
-    const numStudents = studentData.length;
-    const itemResults = [];
-    for (let i = 0; i < numItems; i++) {
-        const topGroup = studentData.filter(student => student.group === 't');
-        const bottomGroup = studentData.filter(student => student.group === 'b');
-        const ST = topGroup.filter(student => student.responses[i] === key[i]).length;
-        const SB = bottomGroup.filter(student => student.responses[i] === key[i]).length;
-        itemResults.push({ST, SB});
-        // console.log(`Item ${i+1}: ST = ${ST}, SB = ${SB}`);
-    }
-    return itemResults;
+    const result = {
+        numItemsExcluded:        include.split('').filter(c => c.toLowerCase() === 'n').length,
+        numItemsAnalyzed:        include.split('').filter(c => c.toLowerCase() === 'y').length,
+        meanItemDifficulty:      utils.calculateMeanItemDifficulty(studentData, key),
+        meanDiscriminationIndex: utils.calculateMeanDiscriminationIndex(studentData, key),
+        meanPointBiserial:       utils.calculateMeanPointBiserial(studentData, key),
+        meanAdjPointBiserial:    utils.calculateMeanAdjPointBiserial(studentData, key),
+    };
+    sessionStorage.setItem('testItemResults', JSON.stringify(result));
+    return result;
 }
 
 function calculatePerItemResults(studentData, key) {
-    const numItems   = key.length;
-    const numStudents = studentData.length;
-    const topGroup   = studentData.filter(s => s.group === 't');
+    const n           = studentData.length;
+    const topGroup    = studentData.filter(s => s.group === 't');
     const bottomGroup = studentData.filter(s => s.group === 'b');
+    const totals      = studentData.map(s => s.score);
+    const meanTotal   = totals.reduce((a, b) => a + b, 0) / n;
+    const stdTotal    = Math.sqrt(totals.reduce((sum, s) => sum + Math.pow(s - meanTotal, 2), 0) / n);
 
-    // Whole-test mean and SD for point-biserial calculation
-    const totalScores   = studentData.map(s => s.score);
-    const meanTotal     = totalScores.reduce((a, b) => a + b, 0) / numStudents;
-    const stdDevTotal   = Math.sqrt(
-        totalScores.reduce((sum, sc) => sum + Math.pow(sc - meanTotal, 2), 0) / numStudents
-    );
+    const items = Array.from({ length: key.length }, (_, i) => {
+        const correct   = studentData.filter(s => s.responses[i] === key[i]);
+        const incorrect = studentData.filter(s => s.responses[i] !== key[i]);
+        const p = correct.length / n;
+        const q = 1 - p;
 
-    const items = [];
-    for (let i = 0; i < numItems; i++) {
-        const correctStudents   = studentData.filter(s => s.responses[i] === key[i]);
-        const incorrectStudents = studentData.filter(s => s.responses[i] !== key[i]);
-        const numCorrect = correctStudents.length;
-        const difficulty = numCorrect / numStudents;
+        let pointBiserial = null;
+        if (p > 0 && q > 0 && stdTotal > 0) {
+            const mC = correct.reduce((sum, s)   => sum + s.score, 0) / correct.length;
+            const mI = incorrect.length ? incorrect.reduce((sum, s) => sum + s.score, 0) / incorrect.length : 0;
+            pointBiserial = ((mC - mI) / stdTotal) * Math.sqrt(p * q);
+        }
+
+        const adjScores = studentData.map(s => s.score - (s.responses[i] === key[i] ? 1 : 0));
+        const meanAdj   = adjScores.reduce((a, b) => a + b, 0) / n;
+        const stdAdj    = Math.sqrt(adjScores.reduce((sum, s) => sum + Math.pow(s - meanAdj, 2), 0) / n);
+        let adjPointBiserial = null;
+        if (p > 0 && q > 0 && stdAdj > 0) {
+            const mCA = correct.reduce((sum, s)   => sum + (s.score - 1), 0) / correct.length;
+            const mIA = incorrect.length ? incorrect.reduce((sum, s) => sum + s.score, 0) / incorrect.length : 0;
+            adjPointBiserial = ((mCA - mIA) / stdAdj) * Math.sqrt(p * q);
+        }
+
         const ST = topGroup.length    ? topGroup.filter(s    => s.responses[i] === key[i]).length / topGroup.length    : 0;
         const SB = bottomGroup.length ? bottomGroup.filter(s => s.responses[i] === key[i]).length / bottomGroup.length : 0;
-        const discIndex = ST - SB;
 
-        // Point biserial
-        let pointBiserial = null;
-        const p = difficulty;
-        const q = 1 - p;
-        if (p > 0 && q > 0 && stdDevTotal > 0) {
-            const meanCorrect   = correctStudents.reduce((sum, s)   => sum + s.score, 0) / correctStudents.length;
-            const meanIncorrect = incorrectStudents.length
-                ? incorrectStudents.reduce((sum, s) => sum + s.score, 0) / incorrectStudents.length
-                : 0;
-            pointBiserial = ((meanCorrect - meanIncorrect) / stdDevTotal) * Math.sqrt(p * q);
-        }
-
-        // Adjusted point biserial (item-deleted)
-        let adjPointBiserial = null;
-        const adjScores = studentData.map(s => s.score - (s.responses[i] === key[i] ? 1 : 0));
-        const meanAdj   = adjScores.reduce((a, b) => a + b, 0) / numStudents;
-        const stdAdj    = Math.sqrt(adjScores.reduce((sum, sc) => sum + Math.pow(sc - meanAdj, 2), 0) / numStudents);
-        if (p > 0 && q > 0 && stdAdj > 0) {
-            const meanCorrAdj   = correctStudents.reduce((sum, s)   => sum + (s.score - 1), 0) / correctStudents.length;
-            const meanIncorrAdj = incorrectStudents.length
-                ? incorrectStudents.reduce((sum, s) => sum + s.score, 0) / incorrectStudents.length
-                : 0;
-            adjPointBiserial = ((meanCorrAdj - meanIncorrAdj) / stdAdj) * Math.sqrt(p * q);
-        }
-
-        const isProblem =
-            difficulty <= 0.20 || difficulty >= 0.95 ||
-            discIndex < 0 ||
-            (adjPointBiserial !== null && adjPointBiserial < 0);
-
-        items.push({
+        return {
             itemNumber: i + 1,
-            key: key[i],
-            numCorrect,
-            difficulty,
-            discIndex,
-            ST,
-            SB,
-            nTop:    topGroup.length,
-            nBottom: bottomGroup.length,
+            key:        key[i],
+            numCorrect: correct.length,
+            difficulty: p,
+            discIndex:  ST - SB,
+            ST, SB,
+            nTop:           topGroup.length,
+            nBottom:        bottomGroup.length,
             nTopCorrect:    topGroup.filter(s    => s.responses[i] === key[i]).length,
             nBottomCorrect: bottomGroup.filter(s => s.responses[i] === key[i]).length,
             pointBiserial,
             adjPointBiserial,
-            isProblem
-        });
-    }
+            isProblem: p <= 0.20 || p >= 0.95 || (ST - SB) < 0 ||
+                       (adjPointBiserial !== null && adjPointBiserial < 0),
+        };
+    });
 
     sessionStorage.setItem('perItemResults', JSON.stringify(items));
     return items;
 }
 
+function calculateReliabilityMetrics(scores, perItemResults, totalPossibleScore) {
+    const result = utils.calculateReliabilityValues(scores, perItemResults, totalPossibleScore);
+    sessionStorage.setItem('reliabilityResults', JSON.stringify(result));
+    return result;
+}
+
+function calculateScoreDistribution(scores, mean, stdDevPop, totalPossibleScore) {
+    const rows = utils.calculateScoreDistributionRows(scores, mean, stdDevPop);
+    sessionStorage.setItem('scoreDistribution', JSON.stringify({ rows, totalPossibleScore, mean, stdDevPop }));
+    return rows;
+}
+
+function calculateExamineeList(studentData, totalPossibleScore, sem) {
+    const rows = utils.calculateExamineeListRows(studentData, totalPossibleScore, sem);
+    sessionStorage.setItem('examineeList', JSON.stringify(rows));
+    return rows;
+}
+
+// ─── Module exports (backward-compatible) ────────────────────────────────────
+
 module.exports = {
-    processData,
-    validateInputs,
+    // File parsing (from fileParser.js)
+    getDataFromFile,
+    getDataFromTapFile,
+    getDataFromDatFile,
+    // Pure utilities (from analysisUtils.js)
+    calculateScore,
+    getScores,
+    calculateTotalPossibleScore,
     calculateSkewness,
     calculateKurtosis,
-    calculateTotalPossibleScore,
-    getScores,
-    calculateScore,
     calculateMeanItemDifficulty,
     calculateMeanDiscriminationIndex,
     calculateMeanPointBiserial,
     calculateMeanAdjPointBiserial,
-    getDataFromFile,
-    getDataFromTapFile,
-    getDataFromDatFile,
-    calculateQuickTestItemResults,
+    // Orchestrator functions
+    processData,
+    validateInputs,
     calculateQuickExamineeResults,
-    calculatePerItemResults
+    calculateQuickTestItemResults,
+    calculatePerItemResults,
+    calculateReliabilityMetrics,
+    calculateScoreDistribution,
+    calculateExamineeList,
 };

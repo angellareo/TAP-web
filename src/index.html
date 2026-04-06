@@ -115,7 +115,23 @@
         </form>
     </div>
 
-    <!-- ========== HELP OFFCANVAS ========== -->
+    <div class="container hidden" id="resultsContainer">
+        <button class="btn btn-light back-button" id="backButton3">Back</button>
+        <div id="resultsHeader" class="results-header"></div>
+        <div id="resultsMenu" class="results-menu"></div>
+        <div id="resultsContent" class="results-content"></div>
+    </div>
+    <footer class="footer mt-auto py-3 bg-secondary text-light">
+        <div class="container text-center">
+            <span> Made with ❤️ by <a href="https://github.com/angellareo" target="_blank" class="link-body-emphasis">Angel Lareo</a> | </span> 
+            <a href="https://github.com/angellareo" class="link-light"><i class="fab fa-github"></i></a>
+            <a href="https://mastodon.social/@alareo" class="link-light"><i class="fab fa-mastodon"></i></a>
+            <a href="https://scholar.google.com/citations?user=zzaFkkoAAAAJ&hl=es" class="link-light"><i class="fab fa-google-scholar"></i></a>
+            <span> | Licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" class="link-body-emphasis">GPL</a></span>
+        </div>
+    </footer>
+
+    <!-- ========== HELP OFFCANVAS (at body end — Bootstrap positioning requirement) ========== -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="helpOffcanvas" aria-labelledby="helpOffcanvasLabel">
         <div class="offcanvas-header border-bottom">
             <h5 class="offcanvas-title" id="helpOffcanvasLabel">
@@ -144,28 +160,14 @@
             </ul>
             <h6 class="fw-bold">Actions</h6>
             <ul>
-                <li><strong>Save .tap file</strong> — download the current data as a reusable <code>.tap</code> file you can load next time.</li>
+                <li><strong>Save .tapw file</strong> — download the current data as a reusable <code>.tapw</code> file you can load next time.</li>
                 <li><strong>Analyse</strong> — run the full test analysis and view results.</li>
             </ul>
             <hr>
             <p class="text-muted">Based on <a href="https://people.ohio.edu/brooksg/#TAP:_Test_Analysis_Program" target="_blank">TAP: Test Analysis Program</a> by Gordon P. Brooks.</p>
         </div>
     </div>
-    <div class="container hidden" id="resultsContainer">
-        <button class="btn btn-light back-button" id="backButton3">Back</button>
-        <div id="resultsHeader" class="results-header"></div>
-        <div id="resultsMenu" class="results-menu"></div>
-        <div id="resultsContent" class="results-content"></div>
-    </div>
-    <footer class="footer mt-auto py-3 bg-secondary text-light">
-        <div class="container text-center">
-            <span> Made with ❤️ by <a href="https://github.com/angellareo" target="_blank" class="link-body-emphasis">Angel Lareo</a> | </span> 
-            <a href="https://github.com/angellareo" class="link-light"><i class="fab fa-github"></i></a>
-            <a href="https://mastodon.social/@alareo" class="link-light"><i class="fab fa-mastodon"></i></a>
-            <a href="https://scholar.google.com/citations?user=zzaFkkoAAAAJ&hl=es" class="link-light"><i class="fab fa-google-scholar"></i></a>
-            <span> | Licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" class="link-body-emphasis">GPL</a></span>
-        </div>
-    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmE4nSFE5KMxcZ8kl/V1e26MTTS" crossorigin="anonymous"></script>
     <script src="bundle.js"></script>
 </body>

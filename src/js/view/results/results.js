@@ -4,14 +4,18 @@
  * Builds Bootstrap nav-tabs and delegates each section to a dedicated module.
  */
 
-import { renderScoresSummary } from './sections/scoresSummary.js';
-import { renderItemAnalysis }  from './sections/itemAnalysis.js';
-import { renderPlaceholder }   from './sections/placeholder.js';
+import { renderScoresSummary }    from './sections/scoresSummary.js';
+import { renderItemAnalysis }      from './sections/itemAnalysis.js';
+import { renderPlaceholder }       from './sections/placeholder.js';
+import { renderScoreDistribution } from './sections/scoreDistribution.js';
+import { renderExamineeList }      from './sections/examineeList.js';
+import { renderGradeReports }      from './sections/gradeReports.js';
 
 const TABS = [
     { id: 'score-summary',    label: 'Score Summary',      render: () => renderScoresSummary() },
-    { id: 'score-dist',       label: 'Score Distribution', render: () => renderPlaceholder('Score Distribution (frequency table, bar graph, stem-and-leaf)') },
-    { id: 'examinee-list',    label: 'Examinee List',      render: () => renderPlaceholder('Per-student table (score, percent, grade, confidence intervals)') },
+    { id: 'score-dist',       label: 'Score Distribution', render: () => renderScoreDistribution() },
+    { id: 'examinee-list',    label: 'Examinee List',      render: () => renderExamineeList() },
+    { id: 'grade-reports',    label: 'Grade Reports',      render: () => renderGradeReports() },
     { id: 'item-analysis',    label: 'Item Analysis',      render: () => renderItemAnalysis() },
     { id: 'extended',         label: 'Extended Analysis',  render: () => renderPlaceholder('KR20, KR21, SEM, split-half reliability, Spearman-Brown Prophecy, additional item-deleted stats') },
     { id: 'options-analysis', label: 'Options Analysis',   render: () => renderPlaceholder('Distractor analysis (option frequencies for high/low groups)') },

@@ -2,6 +2,7 @@ import { processData, validateInputs } from '../../controller/dataProcessors.js'
 import { showResults } from '../results/results.js';
 import { getItemGridValues } from './itemGrid.js';
 import { showNotification } from '../notifications.js';
+import { withLoading } from '../loading.js';
 
 function getDataFromManualInput() {
     const { key, options, include } = getItemGridValues();
@@ -46,14 +47,16 @@ function processDataFromManualInput() {
         );
         return;
     }
-    try {
-        const { totalPossibleScore } = processData(
-            inputData.offset, inputData.key, inputData.options, inputData.include, inputData.studentData
-        );
-        showResults(inputData.title, inputData.comments, totalPossibleScore);
-    } catch (err) {
-        showNotification(`Analysis failed: ${err.message}`, 'danger');
-    }
+    withLoading(() => {
+        try {
+            const { totalPossibleScore } = processData(
+                inputData.offset, inputData.key, inputData.options, inputData.include, inputData.studentData
+            );
+            showResults(inputData.title, inputData.comments, totalPossibleScore);
+        } catch (err) {
+            showNotification(`Analysis failed: ${err.message}`, 'danger');
+        }
+    });
 }
 
 function saveDataFromManualInput() {

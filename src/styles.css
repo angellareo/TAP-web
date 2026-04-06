@@ -109,6 +109,24 @@ body {
     padding-right: 40px; /* Space for counter */
 }
 
+/* Loading overlay */
+#loadingOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.88);
+    /* display is controlled via inline style in loading.js to avoid specificity conflicts */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
 /* Footer fixed at bottom */
 footer {
     flex-shrink: 0;
