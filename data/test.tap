@@ -1,0 +1,31 @@
+TAP: Test Analysis Program (version 6)
+Title         = this is the title
+Comments      = these are the comments
+# Examinees   = 12
+# Items       = 10
+Missing Data  = 9
+Not reached   = x
+Label Length  = 0
+Answer Key    = ACBAABAABC
+# Options     = 4444444444
+Item Analyzed = NYYYYYYYYY
+High Group D% = 27
+Low Group D%  = 27
+Partial Credit= NO
+MC Points     = NO
+ACBAABAABA
+AAABABABCC
+AACBCCABCC
+ACBABBAABA
+AAABABABCC
+AAAACCABCC
+ACBACCAABA
+AAABABCBCC
+CCABACABCC
+AABBCCAACC
+AAAACCABCC
+AAABCBABCC
+# Grades      = 0
+#Alternatives = 0
+#Content Areas= 0
+#Cognitives   = 0

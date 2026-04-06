@@ -1,4 +1,4 @@
-const { getDataFromFile, getScores, calculateScore, calculateSkewness, calculateKurtosis, calculateTotalPossibleScore, calculateQuickExamineeResults, processData, validateInputs } = require('../src/js/controller/dataProcessors.js');
+const { getDataFromFile, getDataFromTapFile, getDataFromDatFile, getScores, calculateScore, calculateSkewness, calculateKurtosis, calculateTotalPossibleScore, calculateQuickExamineeResults, processData, validateInputs } = require('../src/js/controller/dataProcessors.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -105,4 +105,45 @@ test('validateInputs rejects mismatched lengths', () => {
   expect(validateInputs('ABC',  '4444', 'YYYY', 4)).toBe(false);  // key too short
   expect(validateInputs('ABCD', '444',  'YYYY', 4)).toBe(false);  // options too short
   expect(validateInputs('ABCD', '4444', 'YYY',  4)).toBe(false);  // include too short
+});
+
+test('getDataFromTapFile parses original TAP app format', () => {
+  const filePath = path.join(__dirname, '../data/test.tap');
+  const data = fs.readFileSync(filePath, 'utf8');
+
+  const result = getDataFromTapFile(data);
+  expect(result).not.toBeNull();
+  expect(result.title).toBe('this is the title');
+  expect(result.comments).toBe('these are the comments');
+  expect(result.key).toBe('ACBAABAABC');
+  expect(result.options).toBe('4444444444');
+  expect(result.include).toBe('NYYYYYYYYY');
+  expect(result.offset).toBe(0);
+  expect(result.studentData.length).toBe(12);
+});
+
+test('getDataFromFile auto-detects TAP format and produces same key as .dat loader', () => {
+  const tapData = fs.readFileSync(path.join(__dirname, '../data/test.tap'), 'utf8');
+  const datData = fs.readFileSync(path.join(__dirname, '../data/test.dat'), 'utf8');
+
+  const tapResult = getDataFromFile(tapData);
+  const datResult = getDataFromFile(datData);
+
+  expect(tapResult).not.toBeNull();
+  expect(datResult).not.toBeNull();
+  // Both files represent the same test — key fields must match
+  expect(tapResult.key).toBe(datResult.key);
+  expect(tapResult.options).toBe(datResult.options);
+  expect(tapResult.include).toBe(datResult.include);
+  expect(tapResult.studentData.length).toBe(datResult.studentData.length);
+  expect(tapResult.offset).toBe(datResult.offset);
+});
+
+test('getDataFromDatFile handles quoted string values in legacy .dat files', () => {
+  const data = fs.readFileSync(path.join(__dirname, '../data/test2.dat'), 'utf8');
+  const result = getDataFromDatFile(data);
+  expect(result).not.toBeNull();
+  // Quoted title should be returned without surrounding quotes
+  expect(result.title).toBe('this is the title');
+  expect(result.comments).toBe('these are the comments');
 });

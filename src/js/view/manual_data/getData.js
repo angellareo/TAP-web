@@ -67,7 +67,7 @@ function saveDataFromManualInput() {
         return;
     }
     const content = buildTapFileContent(inputData);
-    const filename = (inputData.title || 'test-data').replace(/[^a-z0-9]/gi, '-') + '.tap';
+    const filename = (inputData.title || 'test-data').replace(/[^a-z0-9]/gi, '-') + '.tapw';
     triggerDownload(content, filename);
     showNotification('File saved successfully.', 'success');
 }
