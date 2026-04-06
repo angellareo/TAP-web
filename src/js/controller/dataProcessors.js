@@ -76,6 +76,7 @@ function processData(offset, key, options, include, studentData) {
     calculateQuickExamineeResults(fscores);
     calculateQuickTestItemResults(fixed.studentData, fixed.key, include);
     calculateItemResults(fixed.studentData, fixed.key);
+    calculatePerItemResults(fixed.studentData, fixed.key);
 
     return  { totalPossibleScore, fscores};
 }
@@ -303,6 +304,81 @@ function calculateItemResults(studentData, key){
     return itemResults;
 }
 
+function calculatePerItemResults(studentData, key) {
+    const numItems   = key.length;
+    const numStudents = studentData.length;
+    const topGroup   = studentData.filter(s => s.group === 't');
+    const bottomGroup = studentData.filter(s => s.group === 'b');
+
+    // Whole-test mean and SD for point-biserial calculation
+    const totalScores   = studentData.map(s => s.score);
+    const meanTotal     = totalScores.reduce((a, b) => a + b, 0) / numStudents;
+    const stdDevTotal   = Math.sqrt(
+        totalScores.reduce((sum, sc) => sum + Math.pow(sc - meanTotal, 2), 0) / numStudents
+    );
+
+    const items = [];
+    for (let i = 0; i < numItems; i++) {
+        const correctStudents   = studentData.filter(s => s.responses[i] === key[i]);
+        const incorrectStudents = studentData.filter(s => s.responses[i] !== key[i]);
+        const numCorrect = correctStudents.length;
+        const difficulty = numCorrect / numStudents;
+        const ST = topGroup.length    ? topGroup.filter(s    => s.responses[i] === key[i]).length / topGroup.length    : 0;
+        const SB = bottomGroup.length ? bottomGroup.filter(s => s.responses[i] === key[i]).length / bottomGroup.length : 0;
+        const discIndex = ST - SB;
+
+        // Point biserial
+        let pointBiserial = null;
+        const p = difficulty;
+        const q = 1 - p;
+        if (p > 0 && q > 0 && stdDevTotal > 0) {
+            const meanCorrect   = correctStudents.reduce((sum, s)   => sum + s.score, 0) / correctStudents.length;
+            const meanIncorrect = incorrectStudents.length
+                ? incorrectStudents.reduce((sum, s) => sum + s.score, 0) / incorrectStudents.length
+                : 0;
+            pointBiserial = ((meanCorrect - meanIncorrect) / stdDevTotal) * Math.sqrt(p * q);
+        }
+
+        // Adjusted point biserial (item-deleted)
+        let adjPointBiserial = null;
+        const adjScores = studentData.map(s => s.score - (s.responses[i] === key[i] ? 1 : 0));
+        const meanAdj   = adjScores.reduce((a, b) => a + b, 0) / numStudents;
+        const stdAdj    = Math.sqrt(adjScores.reduce((sum, sc) => sum + Math.pow(sc - meanAdj, 2), 0) / numStudents);
+        if (p > 0 && q > 0 && stdAdj > 0) {
+            const meanCorrAdj   = correctStudents.reduce((sum, s)   => sum + (s.score - 1), 0) / correctStudents.length;
+            const meanIncorrAdj = incorrectStudents.length
+                ? incorrectStudents.reduce((sum, s) => sum + s.score, 0) / incorrectStudents.length
+                : 0;
+            adjPointBiserial = ((meanCorrAdj - meanIncorrAdj) / stdAdj) * Math.sqrt(p * q);
+        }
+
+        const isProblem =
+            difficulty <= 0.20 || difficulty >= 0.95 ||
+            discIndex < 0 ||
+            (adjPointBiserial !== null && adjPointBiserial < 0);
+
+        items.push({
+            itemNumber: i + 1,
+            key: key[i],
+            numCorrect,
+            difficulty,
+            discIndex,
+            ST,
+            SB,
+            nTop:    topGroup.length,
+            nBottom: bottomGroup.length,
+            nTopCorrect:    topGroup.filter(s    => s.responses[i] === key[i]).length,
+            nBottomCorrect: bottomGroup.filter(s => s.responses[i] === key[i]).length,
+            pointBiserial,
+            adjPointBiserial,
+            isProblem
+        });
+    }
+
+    sessionStorage.setItem('perItemResults', JSON.stringify(items));
+    return items;
+}
+
 module.exports = {
     processData,
     validateInputs,
@@ -317,5 +393,6 @@ module.exports = {
     calculateMeanAdjPointBiserial,
     getDataFromFile,
     calculateQuickTestItemResults,
-    calculateQuickExamineeResults
+    calculateQuickExamineeResults,
+    calculatePerItemResults
 };

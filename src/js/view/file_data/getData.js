@@ -1,4 +1,4 @@
-import { processData, getDataFromFile, calculateQuickTestItemResults } from '../../controller/dataProcessors.js';
+import { processData, getDataFromFile } from '../../controller/dataProcessors.js';
 import { showResults } from '../results/results.js';
 
 function handleFileSelect(fileInput) {

@@ -1,84 +1,79 @@
-import {  } from "../../controller/dataProcessors";
+/**
+ * results.js
+ * Orchestrates the results view.
+ * Builds Bootstrap nav-tabs and delegates each section to a dedicated module.
+ */
 
-function initializeEventListeners() {
-    const quickExamineeResultsButton = document.getElementById('quickExamineeResultsButton');
-    const quickTestItemResultsButton = document.getElementById('quickTestItemResultsButton');
+import { renderScoresSummary } from './sections/scoresSummary.js';
+import { renderItemAnalysis }  from './sections/itemAnalysis.js';
+import { renderPlaceholder }   from './sections/placeholder.js';
 
-    if (quickExamineeResultsButton) {
-        quickExamineeResultsButton.addEventListener('click', () => {
-            showQuickExamineeResults();
+const TABS = [
+    { id: 'score-summary',    label: 'Score Summary',      render: () => renderScoresSummary() },
+    { id: 'score-dist',       label: 'Score Distribution', render: () => renderPlaceholder('Score Distribution (frequency table, bar graph, stem-and-leaf)') },
+    { id: 'examinee-list',    label: 'Examinee List',      render: () => renderPlaceholder('Per-student table (score, percent, grade, confidence intervals)') },
+    { id: 'item-analysis',    label: 'Item Analysis',      render: () => renderItemAnalysis() },
+    { id: 'extended',         label: 'Extended Analysis',  render: () => renderPlaceholder('KR20, KR21, SEM, split-half reliability, Spearman-Brown Prophecy, additional item-deleted stats') },
+    { id: 'options-analysis', label: 'Options Analysis',   render: () => renderPlaceholder('Distractor analysis (option frequencies for high/low groups)') },
+];
+
+let activeTabId = TABS[0].id;
+
+function buildTabNav() {
+    const items = TABS.map(tab => `
+        <li class="nav-item" role="presentation">
+            <button class="nav-link ${tab.id === activeTabId ? 'active' : ''}"
+                id="tab-btn-${tab.id}"
+                data-tab-id="${tab.id}"
+                type="button" role="tab">
+                ${tab.label}
+            </button>
+        </li>`).join('');
+    return `<ul class="nav nav-tabs flex-wrap" role="tablist">${items}</ul>`;
+}
+
+function renderActiveTab() {
+    const tab = TABS.find(t => t.id === activeTabId) || TABS[0];
+    document.getElementById('resultsContent').innerHTML = tab.render();
+}
+
+function attachTabListeners() {
+    TABS.forEach(tab => {
+        const btn = document.getElementById(`tab-btn-${tab.id}`);
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            activeTabId = tab.id;
+            document.querySelectorAll('.nav-link[data-tab-id]').forEach(b => {
+                b.classList.toggle('active', b.dataset.tabId === activeTabId);
+            });
+            renderActiveTab();
         });
-    }
-
-    if (quickTestItemResultsButton) {
-        quickTestItemResultsButton.addEventListener('click', () => {
-            showQuickTestItemResults();
-        });
-    }
+    });
 }
 
-function showQuickExamineeResults() {
-    const resultsContent = document.getElementById('resultsContent');
-    resultsContent.innerHTML = '<h2>Quick Examinee Results</h2>' + formatQuickExamineeResults();
-}
+function showResults(title, comments, totalPossibleScore) {
+    activeTabId = TABS[0].id;
 
-function showQuickTestItemResults() {
-    const resultsContent = document.getElementById('resultsContent');
-    resultsContent.innerHTML = '<h2>Quick Test/Item Results</h2>' + formatQuickTestItemResults();
-}
+    // Build header
+    document.getElementById('resultsHeader').innerHTML = `
+        <h2 class="mb-0">${title || 'Results'}</h2>
+        ${comments ? `<p class="text-muted mb-0 small">${comments}</p>` : ''}`;
 
-function showResults(title, comments, result, totalPossibleScore) {
-    currentResults = { title, comments, result, totalPossibleScore };
+    // Build tab nav
+    document.getElementById('resultsMenu').innerHTML = buildTabNav();
 
-    const resultsMenu = document.getElementById('resultsMenu');
-    resultsMenu.innerHTML = `
-        <button id="quickExamineeResultsButton" class="btn btn-secondary">Quick Examinee Results</button>
-        <button id="quickTestItemResultsButton" class="btn btn-secondary">Quick Test/Item Results</button>
-    `;
+    // Render first tab content
+    renderActiveTab();
 
-    initializeEventListeners();
+    // Attach tab click listeners
+    attachTabListeners();
 
-    // Show results container
+    // Show the container
     document.getElementById('editDataContainer').classList.add('hidden');
     document.querySelector('.main-menu').classList.add('hidden');
-    document.getElementById('resultsContainer').classList.remove('hidden');
-    document.getElementById('resultsContainer').classList.add('fade-in');
-
-    // Add header according to the current results being shown
-    const resultsHeader = document.getElementById('resultsHeader');
-    resultsHeader.innerHTML = `<h1>${title}</h1>`;
+    const rc = document.getElementById('resultsContainer');
+    rc.classList.remove('hidden');
+    rc.classList.add('fade-in');
 }
 
-function formatQuickExamineeResults() {
-    const totalPossibleScore = sessionStorage.getItem('totalPossibleScore');
-    const metrics = JSON.parse(sessionStorage.getItem('examineeResults'));
-    return `<p>Number of Examinees: ${metrics.numExaminees}</p>` +
-           `<p>Total Possible Score: ${totalPossibleScore}</p>` +
-           `<p>Minimum Score: ${metrics.minScore.toFixed(3)} = ${(metrics.minScore / totalPossibleScore * 100).toFixed(1)}%</p>` +
-           `<p>Maximum Score: ${metrics.maxScore.toFixed(3)} = ${(metrics.maxScore / totalPossibleScore * 100).toFixed(1)}%</p>` +
-           `<p>Median Score: ${metrics.median.toFixed(3)} = ${(metrics.median / totalPossibleScore * 100).toFixed(1)}%</p>` +
-           `<p>Mean Score: ${metrics.mean.toFixed(3)} = ${(metrics.mean / totalPossibleScore * 100).toFixed(1)}%</p>` +
-           `<p>Standard Deviation: ${metrics.stdDevPop.toFixed(3)}</p>` +
-           `<p>Variance: ${metrics.varPop.toFixed(3)}</p>` +
-           `<p>Skewness: ${metrics.skewness.toFixed(3)}</p>` +
-           `<p>Kurtosis: ${metrics.kurtosis.toFixed(3)}</p>`;
-}
-
-function formatQuickTestItemResults() {
-    const quickTestItemResults = JSON.parse(sessionStorage.getItem('testItemResults'));
-    return `<p>Number of Items Excluded: ${quickTestItemResults.numItemsExcluded}</p>` +
-           `<p>Number of Items Analyzed: ${quickTestItemResults.numItemsAnalyzed}</p>` +
-           `<p>Mean Item Difficulty: ${(quickTestItemResults.meanItemDifficulty * 100).toFixed(1)}%</p>` +
-           `<p>Mean Discrimination Index: ${quickTestItemResults.meanDiscriminationIndex.toFixed(3)}</p>` +
-           `<p>Mean Point Biserial: ${quickTestItemResults.meanPointBiserial.toFixed(3)}</p>` +
-           `<p>Mean Adj. Point Biserial: ${quickTestItemResults.meanAdjPointBiserial.toFixed(3)}</p>`;
-}
-
-let currentResults = {};
-
-export {
-    showResults,
-    formatQuickExamineeResults,
-    formatQuickTestItemResults,
-    initializeEventListeners
-};
+export { showResults };
