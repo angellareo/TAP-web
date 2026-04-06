@@ -26,6 +26,13 @@ export function initializeEventListeners() {
         });
     }
 
+    const generateSampleDataButton = document.getElementById('generateSampleDataButton');
+    if (generateSampleDataButton) {
+        generateSampleDataButton.addEventListener('click', () => {
+            alert('Generate Sample Data: to be implemented...');
+        });
+    }
+
     // LOAD DATA screen (not needed?)
     const loadDataContainer = document.getElementById('loadDataContainer');
     const backButton1 = document.getElementById('backButton1');
