@@ -1,5 +1,6 @@
-import { processDataFromManualInput } from './manual_data/getData.js';
+import { processDataFromManualInput, saveDataFromManualInput } from './manual_data/getData.js';
 import { handleFileSelect } from './file_data/getData.js';
+import { showNotification } from './notifications.js';
 
 export function initializeEventListeners() {
     
@@ -29,7 +30,7 @@ export function initializeEventListeners() {
     const generateSampleDataButton = document.getElementById('generateSampleDataButton');
     if (generateSampleDataButton) {
         generateSampleDataButton.addEventListener('click', () => {
-            alert('Generate Sample Data: to be implemented...');
+            showNotification('Generate Sample Data is not yet implemented.', 'info');
         });
     }
 

@@ -1,5 +1,6 @@
 import { processData, getDataFromFile } from '../../controller/dataProcessors.js';
 import { showResults } from '../results/results.js';
+import { showNotification } from '../notifications.js';
 
 function handleFileSelect(fileInput) {
     const file = fileInput.files[0];
@@ -17,17 +18,18 @@ function handleFileSelect(fileInput) {
 }
 
 function handleDataLoad(data) {
-    const {
-        title,
-        comments, 
-        offset, 
-        key, 
-        options, 
-        include, 
-        studentData
-    } = getDataFromFile(data);
+    const result = getDataFromFile(data);
+    if (!result) {
+        showNotification(
+            'Data format error: the number of students or items does not match the specified values.',
+            'danger'
+        );
+        return;
+    }
+    const { title, comments, offset, key, options, include, studentData } = result;
     processData(offset, key, options, include, studentData);
     showResults(title, comments);
+}
 }
 
 export { 

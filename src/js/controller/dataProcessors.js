@@ -25,8 +25,7 @@ function getDataFromFile(data){
 
     const studentData = lines.slice(dataIndex, dataIndex + numberOfStudents);
     if (studentData.length !== numberOfStudents || studentData.some(line => (line.length - offset) !== numberOfItems)) {
-        alert('Data format error: number of students or items does not match the specified values.');
-        return;
+        return null; // caller is responsible for reporting the error
     }
 
     return {title, comments, offset, key, options, include, studentData};
@@ -83,8 +82,7 @@ function processData(offset, key, options, include, studentData) {
 
 function validateInputs(key, options, include, numberOfItems) {
     if (key.length !== numberOfItems || options.length !== numberOfItems || include.length !== numberOfItems) {
-        alert('Key, Options, and Include lengths must match the number of Test Items.');
-        return false;
+        return false; // caller is responsible for reporting the error
     }
     return true;
 }

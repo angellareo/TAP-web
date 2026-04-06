@@ -1,6 +1,7 @@
 import { processData, validateInputs } from '../../controller/dataProcessors.js';
 import { showResults } from '../results/results.js';
 import { getItemGridValues } from './itemGrid.js';
+import { showNotification } from '../notifications.js';
 
 function getDataFromManualInput() {
     const { key, options, include } = getItemGridValues();
@@ -22,21 +23,34 @@ function getDataFromManualInput() {
 
 function processDataFromManualInput() {
     const inputData = getDataFromManualInput();
-    if (validateInputs(inputData.key, inputData.options, inputData.include, inputData.numberOfItems)) {
-        const { totalPossibleScore } = processData(
-            inputData.offset, inputData.key, inputData.options, inputData.include, inputData.studentData
+    if (!validateInputs(inputData.key, inputData.options, inputData.include, inputData.numberOfItems)) {
+        showNotification(
+            `Key, Options, and Include lengths must each equal the number of Test Items (${inputData.numberOfItems}). ` +
+            'Fill in the Items Configuration table above.',
+            'danger'
         );
-        showResults(inputData.title, inputData.comments, totalPossibleScore);
+        return;
     }
+    const { totalPossibleScore } = processData(
+        inputData.offset, inputData.key, inputData.options, inputData.include, inputData.studentData
+    );
+    showResults(inputData.title, inputData.comments, totalPossibleScore);
 }
 
 function saveDataFromManualInput() {
     const inputData = getDataFromManualInput();
-    if (validateInputs(inputData.key, inputData.options, inputData.include, inputData.numberOfItems)) {
-        const content = buildTapFileContent(inputData);
-        const filename = (inputData.title || 'test-data').replace(/[^a-z0-9]/gi, '-') + '.tap';
-        triggerDownload(content, filename);
+    if (!validateInputs(inputData.key, inputData.options, inputData.include, inputData.numberOfItems)) {
+        showNotification(
+            `Key, Options, and Include lengths must each equal the number of Test Items (${inputData.numberOfItems}). ` +
+            'Fill in the Items Configuration table above.',
+            'danger'
+        );
+        return;
     }
+    const content = buildTapFileContent(inputData);
+    const filename = (inputData.title || 'test-data').replace(/[^a-z0-9]/gi, '-') + '.tap';
+    triggerDownload(content, filename);
+    showNotification('File saved successfully.', 'success');
 }
 
 function buildTapFileContent({ title, comments, numberOfStudents, numberOfItems, offset, key, options, include, studentData }) {
