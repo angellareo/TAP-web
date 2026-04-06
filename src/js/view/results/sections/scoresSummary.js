@@ -3,26 +3,29 @@
  * Renders the Examinee Score Summary tab content from sessionStorage data.
  */
 
+const fmt = (v, dec = 3) => (v !== null && v !== undefined && !isNaN(v)) ? Number(v).toFixed(dec) : '—';
+
 export function renderScoresSummary() {
     const totalPossibleScore = Number(sessionStorage.getItem('totalPossibleScore'));
     const m = JSON.parse(sessionStorage.getItem('examineeResults'));
     if (!m) return '<p class="text-danger">No examinee data found.</p>';
 
     const pct = v => `${(v / totalPossibleScore * 100).toFixed(1)}%`;
+    const fmtScore = v => `${fmt(v)} = ${pct(v)}`;
 
     const rows = [
         ['Number of Examinees', m.numExaminees],
         ['Total Possible Score', totalPossibleScore],
-        ['Minimum Score',  `${m.minScore.toFixed(3)} = ${pct(m.minScore)}`],
-        ['Maximum Score',  `${m.maxScore.toFixed(3)} = ${pct(m.maxScore)}`],
-        ['Median Score',   `${m.median.toFixed(3)} = ${pct(m.median)}`],
-        ['Mean Score',     `${m.mean.toFixed(3)} = ${pct(m.mean)}`],
-        ['Std Deviation (population)', m.stdDevPop.toFixed(3)],
-        ['Std Deviation (sample)',     m.stdDevSamp.toFixed(3)],
-        ['Variance (population)',      m.varPop.toFixed(3)],
-        ['Variance (sample)',          m.varSamp.toFixed(3)],
-        ['Skewness',  m.skewness.toFixed(3)],
-        ['Kurtosis',  m.kurtosis.toFixed(3)],
+        ['Minimum Score',  fmtScore(m.minScore)],
+        ['Maximum Score',  fmtScore(m.maxScore)],
+        ['Median Score',   fmtScore(m.median)],
+        ['Mean Score',     fmtScore(m.mean)],
+        ['Std Deviation (population)', fmt(m.stdDevPop)],
+        ['Std Deviation (sample)',     fmt(m.stdDevSamp)],
+        ['Variance (population)',      fmt(m.varPop)],
+        ['Variance (sample)',          fmt(m.varSamp)],
+        ['Skewness',  fmt(m.skewness)],
+        ['Kurtosis',  fmt(m.kurtosis)],
     ].map(([label, value]) => `
         <tr><td class="fw-semibold text-nowrap">${label}</td><td>${value}</td></tr>
     `).join('');

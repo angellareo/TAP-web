@@ -88,10 +88,12 @@ function validateInputs(key, options, include, numberOfItems) {
 }
 
 function calculateSkewness(scores, n, mean, stdDev) {
+    if (stdDev === 0) return null; // undefined when all scores are identical
     return scores.reduce((acc, score) => acc + Math.pow(score - mean, 3), 0) / (n * Math.pow(stdDev, 3));
 }
 
 function calculateKurtosis(scores, n, mean, stdDev) {
+    if (stdDev === 0) return null; // undefined when all scores are identical
     return scores.reduce((acc, score) => acc + Math.pow(score - mean, 4), 0) / (n * Math.pow(stdDev, 4));
 }
 
@@ -235,7 +237,8 @@ function calculateQuickExamineeResults(scores) {
     const varSamp = math.variance(scores);
     const varPop = math.variance(scores, 'uncorrected');
     const skewness = calculateSkewness(scores, numExaminees, mean, stdDevPop);
-    const kurtosis = calculateKurtosis(scores, numExaminees, mean, stdDevPop)-3; // The -3 is to compare kurtosis with normal distribution;
+    const rawKurtosis = calculateKurtosis(scores, numExaminees, mean, stdDevPop);
+    const kurtosis = rawKurtosis !== null ? rawKurtosis - 3 : null; // -3 for excess kurtosis (compare to normal)
 
     sessionStorage.setItem('examineeResults', JSON.stringify({
         numExaminees,

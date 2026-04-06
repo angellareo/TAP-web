@@ -21,14 +21,18 @@ function handleDataLoad(data) {
     const result = getDataFromFile(data);
     if (!result) {
         showNotification(
-            'Data format error: the number of students or items does not match the specified values.',
+            'Data format error: check that the number of students, items, and offset match the actual data rows.',
             'danger'
         );
         return;
     }
     const { title, comments, offset, key, options, include, studentData } = result;
-    processData(offset, key, options, include, studentData);
-    showResults(title, comments);
+    try {
+        const { totalPossibleScore } = processData(offset, key, options, include, studentData);
+        showResults(title, comments, totalPossibleScore);
+    } catch (err) {
+        showNotification(`Analysis failed: ${err.message}`, 'danger');
+    }
 }
 
 export { 

@@ -21,7 +21,7 @@ export function initializeEventListeners() {
         loadDataButton.addEventListener('click', () => {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
-            fileInput.accept = '.dat';
+            fileInput.accept = '.dat,.tap';
             fileInput.onchange = () => handleFileSelect(fileInput);
             fileInput.click();
         });
