@@ -7,11 +7,20 @@
 function initItemGrid() {
     const itemsInput = document.getElementById('items');
     if (!itemsInput) return;
-    itemsInput.addEventListener('change', () => {
+
+    const handler = () => {
         const n = parseInt(itemsInput.value);
         if (!isNaN(n) && n > 0) renderItemGrid(n);
         else clearItemGrid();
-    });
+    };
+
+    // 'input' fires on every keystroke; 'change' fires on blur — listen to both
+    itemsInput.addEventListener('input', handler);
+    itemsInput.addEventListener('change', handler);
+
+    // Render immediately if a value is already present (e.g. prefilled by browser)
+    const initial = parseInt(itemsInput.value);
+    if (!isNaN(initial) && initial > 0) renderItemGrid(initial);
 }
 
 function renderItemGrid(numItems) {
