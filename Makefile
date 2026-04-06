@@ -15,7 +15,6 @@ clean:
 	mkdir dist
 
 build: clean
-	cp src/index.html dist
 	npm run build
 
 run: build

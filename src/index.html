@@ -10,11 +10,15 @@
 </head>
 <body>
     <div class="main-menu">
-        <div class="options-container operation-selection">
+        <div class="options-container">
             <h1>TAP-web</h1>
-            <button class="btn btn-primary btn-lg" id="editDataButton">Edit Data</button>
-            <button class="btn btn-secondary btn-lg" id="loadDataButton">Load File</button>
-            <button class="btn btn-outline-secondary btn-sm mt-2" id="generateSampleDataButton">Generate Sample Data</button>
+            <button class="btn btn-primary btn-lg main-action-btn" id="editDataButton">Edit Data</button>
+            <button class="btn btn-secondary btn-lg main-action-btn" id="loadDataButton">Load File</button>
+            <div class="generate-divider">
+                <button class="btn btn-link btn-sm text-muted" id="generateSampleDataButton">
+                    <i class="fas fa-random me-1"></i>Generate Sample Data
+                </button>
+            </div>
         </div>
         <div class="info-container fade-in-text" id="infoContainer">
             <ul>

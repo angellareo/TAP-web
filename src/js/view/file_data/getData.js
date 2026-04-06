@@ -30,7 +30,6 @@ function handleDataLoad(data) {
     processData(offset, key, options, include, studentData);
     showResults(title, comments);
 }
-}
 
 export { 
     handleFileSelect,
