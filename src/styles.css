@@ -1,10 +1,13 @@
 /* Make sure the entire viewport is used */
-body, html {
+html {
     height: 100%;
+}
+
+body {
+    min-height: 100%;
     margin: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* No scroll */
 }
 
 /* Main container that takes up available space */
@@ -12,10 +15,19 @@ body, html {
     display: flex;
     flex: 1;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     width: 100%;
-    gap: 20px; /* Add separation between columns */
-    flex-wrap: wrap; /* Allow wrapping for responsive design */
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Results container uses column layout */
+#resultsContainer {
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: 60px;
 }
 
 /* Two-column layout */
@@ -229,16 +241,69 @@ footer {
 /* Results content styling */
 .results-content {
     padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f9f9f9;
     width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
+    overflow-x: auto;
 }
 
 /* Button styling for results menu */
 .results-menu .btn {
     flex: 1;
     max-width: 200px;
+}
+
+/* Validation grid */
+.validation-grid {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px;
+    background: #f8f9fa;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.vg-ruler {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+.vg-row {
+    display: flex;
+    align-items: center;
+    line-height: 1.6;
+}
+
+.vg-row-ok  { background-color: #d1fae5; }
+.vg-row-err { background-color: #fee2e2; }
+
+.vg-linenum {
+    display: inline-block;
+    min-width: 2rem;
+    text-align: right;
+    padding-right: 8px;
+    border-right: 1px solid #dee2e6;
+    margin-right: 8px;
+    color: #9ca3af;
+}
+
+.vg-offset { color: #9ca3af; }
+.vg-item   { color: #1f2937; }
+
+.vg-col {
+    display: inline-block;
+    width: 0.6rem;
+    text-align: center;
+}
+
+.vg-error-msg {
+    margin-left: 8px;
+    font-style: italic;
+    white-space: nowrap;
+}
+
+/* Item grid table */
+.item-grid-table th,
+.item-grid-table td {
+    vertical-align: middle;
+    padding: 4px 8px;
 }
